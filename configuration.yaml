@@ -1,0 +1,222 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret latitude
+  longitude: !secret longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: !secret elevation
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Rome
+  # Customization file
+  customize: !include customize.yaml
+  whitelist_external_dirs:
+    - /config               # for filesize sensor
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+system_health:
+
+#map:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+http:
+#   base_url: example.duckdns.org:8123
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+#updater:
+# Optional, allows Home Assistant developers to focus on popular components.
+# include_used_components: true
+
+# Discover some devices automatically
+discovery:
+  ignore:
+    - sonos
+    - samsung_tv
+    - harmony
+    - deconz
+    - roku
+#  enable:
+#    - homekit
+   
+sensor:
+  - platform: systemmonitor
+    resources:
+      - type: memory_free
+      - type: processor_use
+  - platform: uptime
+    unit_of_measurement: hours
+  - platform: darksky
+    api_key: !secret darksky_api_key
+    forecast:
+      - 0
+    monitored_conditions:
+      - temperature
+  - platform: template
+    sensors:
+      mese_corrente:
+        value_template: "{{ now().month }}"
+        friendly_name: 'Mese corrente'
+  - platform: filesize
+    file_paths:
+      - /config/home-assistant_v2.db
+
+remote:
+  - platform: harmony
+    host: 192.168.1.214
+    name: Harmony Hub
+    activity: Guarda TV
+
+weather:
+  - platform: darksky
+    api_key: !secret darksky_api_key
+
+mqtt:
+  broker: localhost
+  port: 1883
+
+switch:
+  - name: "Smart USB"
+    platform: mqtt
+    state_topic: smartusb/relay/0
+    command_topic: smartusb/relay/0/set
+    payload_on: 1
+    payload_off: 0
+    availability_topic: smartusb/status
+    payload_available: 1
+    payload_not_available: 0
+#  - name: "Shelly1"
+#    platform: mqtt
+#    state_topic: shellies/shelly1-32C429/relay/0
+#    command_topic: shellies/shelly1-32C429/relay/0/command
+#    payload_on: "on"
+#    payload_off: "off"
+  - platform: command_line
+    switches:
+      camera_1_motion_detection:
+        command_on: "/usr/bin/curl http://zero:7999/1/detection/start"
+        command_off: "/usr/bin/curl http://zero:7999/1/detection/pause"
+        command_state: "/usr/bin/curl http://zero:7999/1/detection/status"
+        value_template: '{{ "ACTIVE" in value }}'
+        friendly_name: Pi Zero W Motion Detection
+      camera_2_motion_detection:
+        command_on: "/usr/bin/curl http://localhost:7999/1/detection/start"
+        command_off: "/usr/bin/curl http://localhost:7999/1/detection/pause"
+        command_state: "/usr/bin/curl http://localhost:7999/1/detection/status"
+        value_template: '{{ "ACTIVE" in value }}'
+        friendly_name: HiKam S5 Motion Detection
+
+light:
+  - name: "Cucina Tavolo Lampadario"
+    platform: mqtt
+    state_topic: cucina-tavolo-lampadario/relay/0
+    command_topic: cucina-tavolo-lampadario/relay/0/set
+    payload_on: 1
+    payload_off: 0
+    availability_topic: cucina-tavolo-lampadario/status
+    payload_available: 1
+    payload_not_available: 0
+
+camera:
+  - platform: mjpeg     # camera1 setup with motion
+    name: Pi Zero W
+    mjpeg_url: http://zero:8081
+    still_image_url: http://localhost:8765/picture/1/current/?_username=admin&_signature=43bd6fff55a26b9b87b09bc5900f368d29d111d3
+  - platform: mjpeg     # camera2 setup with motion
+    name: HiKam S5
+    mjpeg_url: http://hassio:8082
+    still_image_url: http://localhost:8765/picture/2/current/?_username=admin&_signature=7e7d0aafa6be0bf591f7deea547e24e9f90f0bc1
+
+hue:
+  bridges:
+    - host: 192.168.1.85  
+      allow_unreachable: false
+      allow_hue_groups: false
+
+tado:
+  username: !secret tado_username
+  password: !secret tado_password
+
+device_tracker:
+#  - platform: nmap_tracker
+#    hosts:
+#      - 192.168.1.210 # Ale
+#      - 192.168.1.211 # Mari
+  - platform: bluetooth_tracker
+#  - platform: icloud
+#    username: !secret icloud_username
+#    password: !secret icloud_password
+#    account_name: Alessandro
+#    gps_accuracy_threshold: 100
+  - platform: tado
+    username: !secret tado_username
+    password: !secret tado_password
+    home_id: !secret tado_home_id
+
+zone:
+  # This will override the default home zone
+  - name: Home
+    latitude: !secret latitude
+    longitude: !secret longitude
+    radius: 50
+
+media_player:
+  - platform: webostv
+    host: 192.168.1.207
+    turn_on_action:
+      service: script.tv_on
+
+recorder:
+  purge_interval: 1
+  purge_keep_days: 2
+  exclude:
+    domains:
+      - camera
+      - automation
+      - group
+      - mqtt
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+binary_sensor:
+  - platform: ping
+    host: 192.168.1.254
+    count: 2
+    scan_interval: 30
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api_key
+    allowed_chat_ids:
+      - !secret telegram_chat_id_alex
+
+notify:
+  - platform: telegram
+    chat_id: !secret telegram_chat_id_alex
+
+# Example using a delay after start of Home Assistant
+homekit:
+  auto_start: False
+  filter:
+    exclude_domains:
+      - sensor
+      - automation
+      - device_tracker
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
