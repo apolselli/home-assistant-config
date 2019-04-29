@@ -1,0 +1,262 @@
+- id: '1000'
+  alias: Avvia HomeKit 5 minuti dopo Home Assistant
+  initial_state: 'on'
+  trigger:
+  - platform: homeassistant
+    event: start
+  action:
+  - delay: 00:05
+  - service: homekit.start
+- id: '1010'
+  alias: Notifica avvio di Hassio
+  initial_state: 'on'
+  trigger:
+  - platform: homeassistant
+    event: start
+  action:
+  - service: notify.notify
+    data:
+      message: Hassio avviato
+- id: '2000'
+  alias: Accendi lampada quando torna Alessandro
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: group.alex
+    from: 'not_home'
+    to: 'home'
+  condition:
+  - after: sunset
+    condition: sun
+  action:
+  - service: light.turn_on
+    entity_id: light.soggiorno_lampada
+- id: '3000'
+  alias: Accendi TVCC e motion detection quando non rimane nessuno
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: group.people
+    from: 'home'
+    to: 'not_home'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.smart_usb
+  - service: switch.turn_on
+    entity_id: switch.camera_1_motion_detection
+  - service: switch.turn_on
+    entity_id: switch.camera_2_motion_detection
+- id: '3500'
+  alias: 'Notifica quando vengono accese luci con nessuno in casa'
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: group.all_lights
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: group.people
+    state: 'not_home'
+  action:
+  - service: notify.notify
+    data_template:
+      message: 'Lights ON with everyone outside!'
+- id: '3510'
+  alias: 'Notifica luci accese quando non rimane nessuno'
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: group.people
+    from: 'home'
+    to: 'not_home'
+  condition:
+  - condition: state
+    entity_id: group.all_lights
+    state: 'on'
+  action:
+  - service: notify.notify
+    data_template:
+      message: 'You left with lights ON!'
+- id: '4000'
+  alias: Spegni TVCC e motion detection quando rientra qualcuno
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: group.people
+    from: 'not_home'
+    to: 'home'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.smart_usb
+  - service: switch.turn_off
+    entity_id: switch.camera_1_motion_detection
+  - service: switch.turn_off
+    entity_id: switch.camera_2_motion_detection
+- id: '5000'
+  alias: Riavvia hassio se non pinga il router per 5 minuti
+  initial_state: 'off'
+  trigger:
+  - entity_id: binary_sensor.ping_binary_sensor
+    for: 00:05:00
+    from: 'on'
+    platform: state
+    to: 'off'
+  action:
+  - service: hassio.host_reboot
+- id: '6000'
+  alias: Riavvia hassio se non pinga il router dopo l’avvio
+  initial_state: 'off'
+  trigger:
+  - event: start
+    platform: homeassistant
+  condition:
+  - condition: state
+    entity_id: binary_sensor.ping_binary_sensor
+    state: 'off'
+  action:
+  - service: hassio.host_reboot
+- id: '7000'
+  alias: Notifica rilevazione movimento Camera 1
+  initial_state: 'on'
+  trigger:
+  - payload: camera1
+    platform: mqtt
+    topic: motion_detection
+  action:
+  - service: notify.notify
+    data:
+      message: Camera 1 motion detection (Pi Zero W)
+  - service: script.turn_on
+    entity_id: script.notify_camera1
+- id: '8000'
+  alias: Notifica rilevazione movimento Camera 2
+  initial_state: 'on'
+  trigger:
+  - payload: camera2
+    platform: mqtt
+    topic: motion_detection
+  action:
+  - service: notify.notify
+    data:
+      message: Camera 2 motion detection (HiKam S2)
+  - service: script.turn_on
+    entity_id: script.notify_camera2
+- id: '9000'
+  alias: 'Telegram start'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/start'
+  action:
+  - service: notify.notify
+    data:
+      message: 'commands'
+      data:
+        keyboard:
+          - '/camera1, /camera2'
+          - '/lights_off, /lights_on'
+- id: '10000'
+  alias: 'Telegram camera1'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/camera1'
+  action:
+  - service: script.turn_on
+    entity_id: script.notify_camera1
+- id: '10010'
+  alias: 'Telegram camera2'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/camera2'
+  action:
+  - service: script.turn_on
+    entity_id: script.notify_camera2
+- id: '10100'
+  alias: 'Telegram lights OFF'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/lights_off'
+  action:
+  - service: light.turn_off
+    entity_id: group.all_lights
+- id: '10110'
+  alias: 'Telegram lights ON'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/lights_on'
+  action:
+  - service: light.turn_on
+    entity_id: group.all_lights
+- id: '11000'
+  alias: 'Toggle camera1 motion detection'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/toggle_camera1_motion_detection'
+  action:
+  - service: switch.toggle
+    entity_id: switch.camera_1_motion_detection
+  - service: notify.notify
+    data_template:
+      message: '{{ states.switch.camera_1_motion_detection.state }}'
+- id: '11010'
+  alias: 'Toggle camera2 motion detection'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/toggle_camera2_motion_detection'
+  action:
+  - service: switch.toggle
+    entity_id: switch.camera_2_motion_detection
+  - service: notify.notify
+    data_template:
+      message: '{{ states.switch.camera_2_motion_detection.state }}'
+
+- id: '20000'
+  alias: "Notifica temperatura esterna superiore a quella interna"
+  hide_entity: true
+  initial_state: 'on'
+  trigger:
+    platform: template
+    value_template: "{{ ((states.sensor.dark_sky_temperature.state|float) > (states.sensor.camera_da_letto_temperature.state|float)) and states.sensor.camera_da_letto_temperature.state|float > 0 }}"
+  condition:
+    condition: template
+    value_template: "{{ (states.sensor.mese_corrente.state > '2') and (states.sensor.mese_corrente.state < '5') }}"
+  action:
+     service: notify.notify
+     data:
+       title: "Domotica"
+       message: "Rilevata temperatura esterna superiore a quella interna."
+- id: '20010'
+  alias: "Notifica temperatura esterna inferiore a quella interna"
+  hide_entity: true
+  initial_state: 'on'
+  trigger:
+    platform: template
+    value_template: "{{ ((states.sensor.dark_sky_temperature.state|float) < (states.sensor.camera_da_letto_temperature.state|float)) and states.sensor.camera_da_letto_temperature.state|float > 0 }}"
+  condition:
+    condition: template
+    value_template: "{{ (states.sensor.mese_corrente.state > '8') and (states.sensor.mese_corrente.state < '11') }}"
+  action:
+     service: notify.notify
+     data:
+       title: "Domotica"
+       message: "Rilevata temperatura esterna inferiore a quella interna."
