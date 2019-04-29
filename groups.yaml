@@ -1,0 +1,22 @@
+people:
+  name: Persone
+  entities:
+    - group.alex
+    - group.mari
+
+alex:
+  name: Alessandro
+  icon: mdi:human-male
+  entities:
+#    - device_tracker.iphone
+#    - device_tracker.iphonealelan
+    - device_tracker.iphone_di_alessandro
+    - device_tracker.iphone_di_alessandro_2
+
+mari:
+  name: Mariangela
+  icon: mdi:human-female
+  entities:
+#    - device_tracker.iphonemarilan
+    - device_tracker.iphone_di_mariangela
+    - device_tracker.iphone_di_mariangela_2
