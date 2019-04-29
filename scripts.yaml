@@ -1,0 +1,41 @@
+tv_off:
+  alias: Spegni TV
+  sequence:
+  - service: remote.send_command
+    data_template:
+      entity_id: remote.harmony_hub
+      device: '58141348'
+      command: ['PowerOff']
+
+tv_on:
+  alias: Accendi TV
+  sequence:
+  - service: remote.send_command
+    data_template:
+      entity_id: remote.harmony_hub
+      device: '58141348'
+      command: ['PowerOn']
+
+notify_camera1:
+  alias: Notifica Camera 1
+  sequence:
+  - service: notify.notify
+    data:
+      message: Camera 1
+      data:
+        photo:
+        - url: http://localhost:8765/picture/1/current/?_username=admin&_signature=43bd6fff55a26b9b87b09bc5900f368d29d111d3
+          caption: Camera 1
+          inline_keyboard: 'Toggle motion detection:/toggle_camera1_motion_detection'
+
+notify_camera2:
+  alias: Notifica Camera 2
+  sequence:
+  - service: notify.notify
+    data:
+      message: Camera 2
+      data:
+        photo:
+        - url: http://localhost:8765/picture/2/current/?_username=admin&_signature=7e7d0aafa6be0bf591f7deea547e24e9f90f0bc1
+          caption: Camera 2
+          inline_keyboard: 'Toggle motion detection:/toggle_camera2_motion_detection'
