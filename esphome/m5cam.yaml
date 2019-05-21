@@ -1,0 +1,73 @@
+# M5Cam (ESP32CAM model 1) - https://github.com/m5stack/m5stack-cam-psram/tree/master
+
+substitutions:
+  devicename: m5cam
+  upper_devicename: M5Cam
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: m5stack-core-esp32
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+
+logger:
+
+api:
+
+ota:
+
+web_server:
+  port: 80
+
+binary_sensor:
+  - platform: gpio
+    pin: GPIO4
+    name: ${upper_devicename} PIR Sensor
+    device_class: motion
+    on_press:
+      then:
+        - switch.turn_on: led1
+    on_release:
+      then:
+        - switch.turn_off: led1
+
+sensor:
+  - platform: wifi_signal
+    name: ${upper_devicename} WiFi Signal
+  - platform: uptime
+    name: ${upper_devicename} Uptime
+
+switch:
+  - platform: restart
+    name: ${upper_devicename} Restart
+  - platform: gpio
+    pin:
+      number: GPIO16
+    name: ${upper_devicename} Led
+    id: led1
+    
+# text_sensor:
+#   - platform: version
+#     name: ${upper_devicename} ESPHome Version
+
+esp32_camera:
+  external_clock:
+    pin: GPIO27
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO25
+    scl: GPIO23
+  data_pins: [GPIO17, GPIO35, GPIO34, GPIO5, GPIO39, GPIO18, GPIO36, GPIO19]
+  vsync_pin: GPIO22
+  href_pin: GPIO26
+  pixel_clock_pin: GPIO21
+  reset_pin: GPIO15
+  # Image settings
+  name: $devicename
+  resolution: 640x480
+  max_framerate: 3 fps
+  idle_framerate: 0.03 fps
