@@ -31,8 +31,8 @@ i2c:
 
 deep_sleep:
   id: deep_sleep_1
-  run_duration: 15min
-  sleep_duration: 5min
+  run_duration: 5min
+  sleep_duration: 25min
   wakeup_pin:
     number: GPIO39          # Button B is a RTC pin (GPIO0, GPIO2, GPIO4, GPIO12, GPIO13, GPIO14, GPIO15, GPIO25, GPIO26, GPIO27, GPIO32, GPIO39)
     inverted: true
