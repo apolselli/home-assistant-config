@@ -24,7 +24,7 @@ notify_camera1:
       message: Camera 1
       data:
         photo:
-        - url: http://localhost:8765/picture/1/current/?_username=admin&_signature=43bd6fff55a26b9b87b09bc5900f368d29d111d3
+        - url: http://localhost:8765/picture/1/current/
           caption: Camera 1
           inline_keyboard: 'Toggle motion detection:/toggle_camera1_motion_detection'
 
@@ -36,6 +36,23 @@ notify_camera2:
       message: Camera 2
       data:
         photo:
-        - url: http://localhost:8765/picture/2/current/?_username=admin&_signature=7e7d0aafa6be0bf591f7deea547e24e9f90f0bc1
+        - url: http://localhost:8765/picture/2/current/
           caption: Camera 2
           inline_keyboard: 'Toggle motion detection:/toggle_camera2_motion_detection'
+
+notify_camera3:
+  alias: Notifica Camera 3
+  sequence:
+  - service: camera.snapshot
+    data:
+      entity_id: camera.m5cam
+      filename: '/tmp/m5cam_snapshot.jpg'
+  - delay: '00:00:02'
+  - service: notify.notify
+    data:
+      message: Camera 3
+      data:
+        photo:
+        - file: /tmp/m5cam_snapshot.jpg
+          caption: Camera 3
+          inline_keyboard: 'Toggle motion detection:/toggle_camera3_motion_detection'
