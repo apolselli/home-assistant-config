@@ -31,8 +31,9 @@
   action:
   - service: light.turn_on
     entity_id: light.soggiorno_lampada
+
 - id: '3000'
-  alias: Accendi TVCC e motion detection quando non rimane nessuno
+  alias: Accendi TVCC e attiva motion detection quando non rimane nessuno
   initial_state: 'on'
   trigger:
   - platform: state
@@ -40,12 +41,18 @@
     from: 'home'
     to: 'not_home'
   action:
-  - service: switch.turn_on
-    entity_id: switch.smart_usb
+  - service: notify.notify
+    data_template:
+      message: 'Attivo motion detection'
   - service: switch.turn_on
     entity_id: switch.camera_1_motion_detection
   - service: switch.turn_on
     entity_id: switch.camera_2_motion_detection
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.camera_3_motion_detection
+  - service: switch.turn_on
+    entity_id: switch.smart_usb_relay
+
 - id: '3500'
   alias: 'Notifica quando vengono accese luci con nessuno in casa'
   initial_state: 'on'
@@ -86,12 +93,18 @@
     from: 'not_home'
     to: 'home'
   action:
-  - service: switch.turn_off
-    entity_id: switch.smart_usb
+  - service: notify.notify
+    data_template:
+      message: 'Disattivo motion detection'
   - service: switch.turn_off
     entity_id: switch.camera_1_motion_detection
   - service: switch.turn_off
     entity_id: switch.camera_2_motion_detection
+  - service: input_boolean.turn_off
+    entity_id: input_boolean.camera_3_motion_detection
+  - service: switch.turn_off
+    entity_id: switch.smart_usb_relay
+
 - id: '5000'
   alias: Riavvia hassio se non pinga il router per 5 minuti
   initial_state: 'off'
@@ -115,6 +128,7 @@
     state: 'off'
   action:
   - service: hassio.host_reboot
+
 - id: '7000'
   alias: Notifica rilevazione movimento Camera 1
   initial_state: 'on'
@@ -128,7 +142,7 @@
       message: Camera 1 motion detection (Pi Zero W)
   - service: script.turn_on
     entity_id: script.notify_camera1
-- id: '8000'
+- id: '7010'
   alias: Notifica rilevazione movimento Camera 2
   initial_state: 'on'
   trigger:
@@ -141,6 +155,24 @@
       message: Camera 2 motion detection (HiKam S2)
   - service: script.turn_on
     entity_id: script.notify_camera2
+- id: '7020'
+  alias: Notifica rilevazione movimento Camera 3
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.m5cam_pir_sensor
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.camera_3_motion_detection
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      message: Camera 3 motion detection (m5cam)
+  - service: script.turn_on
+    entity_id: script.notify_camera3
+    
 - id: '9000'
   alias: 'Telegram start'
   initial_state: 'on'
@@ -155,8 +187,10 @@
       message: 'commands'
       data:
         keyboard:
-          - '/camera1, /camera2'
+          - '/camera1, /camera2, /camera3'
           - '/lights_off, /lights_on'
+          - '/restart'
+
 - id: '10000'
   alias: 'Telegram camera1'
   initial_state: 'on'
@@ -179,6 +213,18 @@
   action:
   - service: script.turn_on
     entity_id: script.notify_camera2
+- id: '10020'
+  alias: 'Telegram camera3'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/camera3'
+  action:
+  - service: script.turn_on
+    entity_id: script.notify_camera3
+
 - id: '10100'
   alias: 'Telegram lights OFF'
   initial_state: 'on'
@@ -229,6 +275,30 @@
   - service: notify.notify
     data_template:
       message: '{{ states.switch.camera_2_motion_detection.state }}'
+- id: '11020'
+  alias: 'Toggle camera3 motion detection'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/toggle_camera3_motion_detection'
+  action:
+  - service: input_boolean.toggle
+    entity_id: input_boolean.camera_3_motion_detection
+  - service: notify.notify
+    data_template:
+      message: '{{ states.input_boolean.camera_3_motion_detection.state }}'
+- id: '12000'
+  alias: 'Telegram restart home assistant'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/restart'
+  action:
+  - service: homeassistant.restart
 
 - id: '20000'
   alias: "Notifica temperatura esterna superiore a quella interna"
@@ -260,3 +330,15 @@
      data:
        title: "Domotica"
        message: "Rilevata temperatura esterna inferiore a quella interna."
+
+- id: '30000'
+  alias: "M5StickC Led acceso accende tutte le luci"
+  hide_entity: true
+  initial_state: 'on'
+  trigger:
+    platform: state
+    entity_id: switch.m5stickc_led_2
+    to: 'on'
+  action:
+  - service: light.turn_on
+    entity_id: group.all_lights
