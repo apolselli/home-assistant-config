@@ -1,3 +1,114 @@
+decluttering_templates:
+  barometro:
+    default:
+      - size: 200
+      - name: Barometro
+    card:
+      type: 'custom:canvas-gauge-card'
+      entity: '[[entity]]'
+      gauge:
+        borders: false
+        height: '[[size]]'
+        width: '[[size]]'
+        highlights:
+          - color: 'rgba(255, 255, 100, .50)'
+            from: 1020
+            to: 1040
+          - color: 'rgba(100, 100, 255, .50)'
+            from: 980
+            to: 1000
+        majorTicks:
+          - 980
+          - ☔
+          - 1000
+          - ⛅
+          - 1020
+          - ☼
+          - 1040
+        maxValue: 1040
+        minValue: 980
+        startAngle: 45
+        strokeTicks: true
+        ticksAngle: 270
+        title: '[[name]]'
+        type: radial-gauge
+        units: hPa
+  igrometro:
+    default:
+      - size: 200
+      - name: Igrometro
+    card:
+      type: 'custom:canvas-gauge-card'
+      entity: '[[entity]]'
+      gauge:
+        borders: false
+        height: '[[size]]'
+        width: '[[size]]'
+        highlights:
+          - color: 'rgba(50, 200, 50, .30)'
+            from: 35
+            to: 60
+        majorTicks:
+          - '20'
+          - '30'
+          - '40'
+          - '50'
+          - '60'
+          - '70'
+          - '80'
+        maxValue: 80
+        minValue: 20
+        minorTicks: 2
+        startAngle: 45
+        strokeTicks: true
+        ticksAngle: 270
+        title: '[[name]]'
+        type: radial-gauge
+        units: '%'
+        valueBox: true
+        valueDec: 0
+        valueInt: 2
+  termometro:
+    default:
+      - size: 100
+      - height: 300
+      - name: Termometro
+    card:
+      type: 'custom:canvas-gauge-card'
+      entity: '[[entity]]'
+      gauge:
+        borders: false
+        height: '[[height]]'
+        width: '[[size]]'
+        highlights:
+          - color: 'rgba(200, 50, 50, .15)'
+            from: 25
+            to: 35
+          - color: 'rgba(50, 50, 200, .15)'
+            from: 10
+            to: 17
+        majorTicks:
+          - '10'
+          - '15'
+          - '20'
+          - '25'
+          - '30'
+          - '35'
+        maxValue: 35
+        minValue: 10
+        minorTicks: 10
+        title: '[[name]]'
+        type: linear-gauge
+        valueBox: false
+resources:
+  - type: module
+    url: /community_plugin/monster-card/monster-card.js
+  - type: module
+    url: /community_plugin/canvas-gauge-card/canvas-gauge-card.js
+  - type: module
+    url: /community_plugin/decluttering-card/decluttering-card.js
+  - type: js
+    url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
 title: Home Assistant
 views:
   - badges: []
@@ -7,6 +118,7 @@ views:
           - entity: sensor.memory_free
           - entity: sensor.processor_use
           - entity: sensor.home_assistant_v2_db
+          - entity: sensor.rpi_power_status
         title: Sistema
         type: glance
       - entities:
@@ -29,23 +141,14 @@ views:
             state: home
         type: conditional
       - card:
-          card:
-            title: Luci accese
-            type: glance
-          entities:
-            - entity: light.camera_lampadario
-            - entity: light.soggiorno_lampadario
-            - entity: light.ingresso_lampadario
-            - entity: light.soggiorno_lampada
-            - entity: light.cucina_penisola
-            - entity: light.cucina_tavolo_lampadario
-          state_filter:
-            - 'on'
-          type: entity-filter
-        conditions:
-          - entity: group.all_lights
-            state: 'on'
-        type: conditional
+          title: Luci accese
+          type: entities
+        filter:
+          include:
+            - domain: light
+              state: 'on'
+        show_empty: false
+        type: 'custom:monster-card'
       - cards:
           - camera_image: camera.hikam_s5
             entities:
@@ -73,43 +176,40 @@ views:
           - entity: binary_sensor.m5cam_pir_sensor
             secondary_info: last-changed
         type: entities
-      - entities:
-          - entity: climate.soggiorno
-          - entity: climate.cucina
-          - entity: climate.camera_da_letto
-          - entity: climate.cameretta
-        show_header_toggle: false
-        title: Riscaldamento
-        type: entities
-      - entities:
-          - entity: group.all_lights
-        show_header_toggle: false
-        theme: default
-        title: Comandi generali
-        type: entities
+      - card:
+          show_header_toggle: false
+          title: Riscaldamento
+          type: entities
+        filter:
+          include:
+            - domain: climate
+        type: 'custom:monster-card'
     path: default_view
     title: Home
   - badges: []
     cards:
+      - card:
+          show_header_toggle: true
+          title: Luci
+          type: entities
+        filter:
+          include:
+            - entity_id: light.*
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: true
+          title: Interruttori
+          type: entities
+        filter:
+          exclude:
+            - entity_id: '*restart'
+            - entity_id: '*led'
+            - entity_id: '*motion_detection'
+          include:
+            - domain: switch
+        type: 'custom:monster-card'
       - entities:
-          - entity: light.camera_lampadario
-          - entity: light.cucina_tavolo_lampadario
-          - entity: light.cucina_penisola
-          - entity: light.ingresso_lampadario
-          - entity: light.soggiorno_lampada
-          - entity: group.all_lights
-        show_header_toggle: true
-        theme: default
-        title: Luci
-        type: entities
-      - entities:
-          - entity: switch.smart_usb
-          - entity: group.all_switches
-        show_header_toggle: true
-        title: Interruttori
-        type: entities
-      - entities:
-          - remote.harmony_hub
+          - entity: remote.harmony_hub
         show_header_toggle: false
         title: Telecomandi
         type: entities
@@ -152,72 +252,125 @@ views:
     title: Persone
   - badges: []
     cards:
-      - detail: 10
-        entity: sensor.dark_sky_temperature
-        graph: line
-        hours_to_show: 24
-        theme: Backend-selected
-        type: sensor
-      - entities:
-          - entity: climate.soggiorno
-          - entity: climate.cucina
-          - entity: climate.camera_da_letto
-          - entity: climate.cameretta
-        show_header_toggle: false
-        title: Riscaldamento
-        type: entities
-      - cards:
+      - title: ⛅ Outdoor
+        type: 'custom:vertical-stack-in-card'
+        cards:
+          - type: horizontal-stack
+            cards:
+              - entity: sensor.dark_sky_temperature
+                graph: line
+                type: sensor
+              - type: horizontal-stack
+                cards:
+                  - template: termometro
+                    type: 'custom:decluttering-card'
+                    variables:
+                      - entity: sensor.dark_sky_temperature
+                      - name: Dark Sky
+                  - template: termometro
+                    type: 'custom:decluttering-card'
+                    variables:
+                      - entity: sensor.m5stickc_bmp280_temperature
+          - type: horizontal-stack
+            cards:
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_dht12_humidity
+              - template: barometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_bmp280_pressure
+      - title: "\U0001F3E0 Indoor"
+        type: 'custom:vertical-stack-in-card'
+        cards:
           - cards:
-              - entity: sensor.soggiorno_humidity
-                max: 50
-                min: 35
-                type: gauge
-              - entity: sensor.cucina_humidity
-                max: 50
-                min: 35
-                type: gauge
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.cucina_temperature
+                  - name: Cucina
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.soggiorno_temperature
+                  - name: Soggiorno
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.cameretta_temperature
+                  - name: Cameretta
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.camera_da_letto_temperature
+                  - name: Camera da letto
             type: horizontal-stack
           - cards:
-              - entity: sensor.camera_da_letto_humidity
-                max: 50
-                min: 35
-                type: gauge
-              - entity: sensor.cameretta_humidity
-                max: 50
-                min: 35
-                type: gauge
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.cucina_humidity
+                  - name: Cucina
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.soggiorno_humidity
+                  - name: Soggiorno
             type: horizontal-stack
-        type: vertical-stack
-      - entities:
-          - entity: sensor.soggiorno_temperature
-          - entity: sensor.cucina_temperature
-          - entity: sensor.camera_da_letto_temperature
-          - entity: sensor.cameretta_temperature
-        show_header_toggle: false
-        title: Temperature
-        type: entities
-      - entities:
-          - entity: sensor.m5stickc_dht12_temperature
-          - entity: sensor.m5stickc_dht12_humidity
-          - entity: sensor.m5stickc_bmp280_temperature
-          - entity: sensor.m5stickc_bmp280_pressure
-        show_header_toggle: false
-        title: M5StickC ENV Unit
-        type: entities
+          - cards:
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.cameretta_humidity
+                  - name: Cameretta
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.camera_da_letto_humidity
+                  - name: Camera da letto
+            type: horizontal-stack
+      - type: vertical-stack
+        cards:
+          - card:
+              show_header_toggle: false
+              title: Riscaldamento
+              type: entities
+            filter:
+              include:
+                - domain: climate
+            type: 'custom:monster-card'
+          - card:
+              show_header_toggle: false
+              title: Temperature
+              type: entities
+            filter:
+              include:
+                - entity_id: sensor.*temperature
+            type: 'custom:monster-card'
     path: climate
     title: Climatizzazione
   - badges: []
     cards:
-      - entities:
-          - entity: group.all_automations
-        show_header_toggle: false
-        theme: default
-        title: Automazioni
-        type: entities
+      - card:
+          title: Automazioni
+          type: entities
+        filter:
+          include:
+            - domain: automation
+        type: 'custom:monster-card'
     path: automation
     title: Automazioni
   - badges: []
     cards:
+      - card:
+          title: Motion Detection
+          type: glance
+        filter:
+          include:
+            - entity_id: switch.*motion*
+            - entity_id: input_boolean.*motion*
+        type: 'custom:monster-card'
       - camera_image: camera.hikam_s5
         camera_view: live
         entities:
@@ -236,34 +389,72 @@ views:
           - switch.camera_1_motion_detection
         title: Camera da letto
         type: picture-glance
+      - camera_image: camera.m5cam
+        camera_view: live
+        entities:
+          - sensor.soggiorno_temperature
+          - sensor.soggiorno_humidity
+          - light.soggiorno_lampada
+          - switch.camera_2_motion_detection
+        title: Soggiorno
+        type: picture-glance
     icon: 'mdi:cctv'
     theme: default
     title: Videosorveglianza
   - badges: []
     cards:
-      - entities:
-          - entity: camera.m5cam
-          - entity: binary_sensor.m5cam_pir_sensor
-          - entity: switch.m5cam_led
-          - entity: switch.m5cam_restart
-          - entity: sensor.m5cam_wifi_signal
-          - entity: sensor.m5cam_uptime
-        show_header_toggle: false
-        title: M5Cam
-        type: entities
-      - entities:
-          - entity: binary_sensor.m5stickc_button_a
-          - entity: binary_sensor.m5stickc_button_b
-          - entity: switch.m5stickc_led
-          - entity: switch.m5stickc_restart
-          - entity: sensor.m5stickc_wifi_signal
-          - entity: sensor.m5stickc_uptime
-          - entity: sensor.m5stickc_dht12_temperature
-          - entity: sensor.m5stickc_dht12_humidity
-          - entity: sensor.m5stickc_bmp280_temperature
-          - entity: sensor.m5stickc_bmp280_pressure
-        show_header_toggle: false
-        title: M5StickC
-        type: entities
+      - card:
+          show_header_toggle: false
+          title: M5Cam
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5cam*'
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: false
+          title: M5StickC
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5stickc*'
+        type: 'custom:monster-card'
+      - title: M5StickC ENV Unit
+        type: 'custom:vertical-stack-in-card'
+        cards:
+          - type: horizontal-stack
+            cards:
+              - template: igrometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_dht12_humidity
+                  - name: Umidità
+                  - size: 200
+              - template: barometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_bmp280_pressure
+                  - name: Pressione
+                  - size: 200
+          - type: horizontal-stack
+            cards:
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_bmp280_temperature
+                  - name: Temperatura (BMP280)
+                  - size: 140
+                  - height: 300
+              - template: termometro
+                type: 'custom:decluttering-card'
+                variables:
+                  - entity: sensor.m5stickc_dht12_temperature
+                  - name: Temperatura (DHT12)
+                  - size: 140
+                  - height: 300
+          - type: sensor
+            entity: sensor.m5stickc_bmp280_temperature
+            name: Temperatura (BMP280)
+            graph: line
     icon: 'mdi:wrench'
     title: Lab
