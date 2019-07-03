@@ -16,7 +16,7 @@
   action:
   - service: notify.notify
     data:
-      message: Hassio avviato
+      message: Hassio avviato con ip esterno {{ state_attr('sensor.fritz_netmonitor', 'external_ip') }}
 - id: '2000'
   alias: Accendi lampada quando torna Alessandro
   initial_state: 'on'
