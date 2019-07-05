@@ -1,15 +1,10 @@
 decluttering_templates:
   barometro:
-    default:
-      - size: 200
-      - name: Barometro
     card:
-      type: 'custom:canvas-gauge-card'
       entity: '[[entity]]'
       gauge:
         borders: false
         height: '[[size]]'
-        width: '[[size]]'
         highlights:
           - color: 'rgba(255, 255, 100, .50)'
             from: 1020
@@ -33,17 +28,19 @@ decluttering_templates:
         title: '[[name]]'
         type: radial-gauge
         units: hPa
-  igrometro:
-    default:
-      - size: 200
-      - name: Igrometro
-    card:
+        valueBox: true
+        valueDec: 0
+        width: '[[size]]'
       type: 'custom:canvas-gauge-card'
+    default:
+      - size: 180
+      - name: Barometro
+  igrometro:
+    card:
       entity: '[[entity]]'
       gauge:
         borders: false
         height: '[[size]]'
-        width: '[[size]]'
         highlights:
           - color: 'rgba(50, 200, 50, .30)'
             from: 35
@@ -68,18 +65,17 @@ decluttering_templates:
         valueBox: true
         valueDec: 0
         valueInt: 2
-  termometro:
-    default:
-      - size: 100
-      - height: 300
-      - name: Termometro
-    card:
+        width: '[[size]]'
       type: 'custom:canvas-gauge-card'
+    default:
+      - size: 180
+      - name: Igrometro
+  termometro:
+    card:
       entity: '[[entity]]'
       gauge:
         borders: false
         height: '[[height]]'
-        width: '[[size]]'
         highlights:
           - color: 'rgba(200, 50, 50, .15)'
             from: 25
@@ -100,6 +96,12 @@ decluttering_templates:
         title: '[[name]]'
         type: linear-gauge
         valueBox: false
+        width: '[[size]]'
+      type: 'custom:canvas-gauge-card'
+    default:
+      - size: 100
+      - height: 300
+      - name: Termometro
 resources:
   - type: module
     url: /community_plugin/monster-card/monster-card.js
@@ -109,10 +111,37 @@ resources:
     url: /community_plugin/decluttering-card/decluttering-card.js
   - type: js
     url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
+  - type: module
+    url: /community_plugin/mini-media-player/mini-media-player.js
+  - url: /community_plugin/simple-weather-card/simple-weather-card.js
+    type: module
+  - url: /community_plugin/mini-graph-card/mini-graph-card.js
+    type: module
 title: Home Assistant
 views:
   - badges: []
     cards:
+      - type: 'custom:simple-weather-card'
+        entity: weather.dark_sky
+        name: ' '
+      - type: 'custom:mini-graph-card'
+        entities:
+          - sensor.soggiorno_temperature
+          - sensor.cucina_temperature
+          - sensor.cameretta_temperature
+          - sensor.camera_da_letto_temperature
+        hour24: true
+        show:
+          labels: true
+          icon: true
+          name: true
+          state: true
+          fill: false
+      - entity: media_player.lg_webos_smart_tv
+        hide:
+          controls: true
+          name: true
+        type: 'custom:mini-media-player'
       - entities:
           - entity: sensor.uptime
           - entity: sensor.memory_free
@@ -176,18 +205,15 @@ views:
           - entity: binary_sensor.m5cam_pir_sensor
             secondary_info: last-changed
         type: entities
-      - card:
-          show_header_toggle: false
-          title: Riscaldamento
-          type: entities
-        filter:
-          include:
-            - domain: climate
-        type: 'custom:monster-card'
+      - type: entities
+        entities:
+          - entity: group.all_lights
     path: default_view
     title: Home
   - badges: []
     cards:
+      - entity: media_player.lg_webos_smart_tv
+        type: media-control
       - card:
           show_header_toggle: true
           title: Luci
@@ -220,8 +246,6 @@ views:
         theme: default
         title: Script
         type: entities
-      - entity: media_player.lg_webos_smart_tv
-        type: media-control
     path: main
     title: Casa
   - badges: []
@@ -252,16 +276,21 @@ views:
     title: Persone
   - badges: []
     cards:
-      - title: ⛅ Outdoor
-        type: 'custom:vertical-stack-in-card'
-        cards:
-          - type: horizontal-stack
-            cards:
-              - entity: sensor.dark_sky_temperature
-                graph: line
-                type: sensor
-              - type: horizontal-stack
-                cards:
+      - cards:
+          - cards:
+              - type: 'custom:mini-graph-card'
+                entities:
+                  - sensor.dark_sky_temperature
+                  - sensor.m5stickc_dht12_temperature
+                  - sensor.m5stickc_bmp280_temperature
+                hour24: true
+                show:
+                  labels: true
+                  icon: true
+                  name: false
+                  state: true
+                  fill: false
+              - cards:
                   - template: termometro
                     type: 'custom:decluttering-card'
                     variables:
@@ -271,8 +300,9 @@ views:
                     type: 'custom:decluttering-card'
                     variables:
                       - entity: sensor.m5stickc_bmp280_temperature
-          - type: horizontal-stack
-            cards:
+                type: horizontal-stack
+            type: horizontal-stack
+          - cards:
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
@@ -281,9 +311,10 @@ views:
                 type: 'custom:decluttering-card'
                 variables:
                   - entity: sensor.m5stickc_bmp280_pressure
-      - title: "\U0001F3E0 Indoor"
+            type: horizontal-stack
+        title: ⛅ Outdoor
         type: 'custom:vertical-stack-in-card'
-        cards:
+      - cards:
           - cards:
               - template: termometro
                 type: 'custom:decluttering-card'
@@ -312,26 +343,42 @@ views:
                 variables:
                   - entity: sensor.cucina_humidity
                   - name: Cucina
+                  - size: 100
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
                   - entity: sensor.soggiorno_humidity
                   - name: Soggiorno
-            type: horizontal-stack
-          - cards:
+                  - size: 100
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
                   - entity: sensor.cameretta_humidity
                   - name: Cameretta
+                  - size: 100
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
                   - entity: sensor.camera_da_letto_humidity
                   - name: Camera da letto
+                  - size: 100
             type: horizontal-stack
-      - type: vertical-stack
-        cards:
+          - type: 'custom:mini-graph-card'
+            entities:
+              - sensor.cucina_temperature
+              - sensor.soggiorno_temperature
+              - sensor.cameretta_temperature
+              - sensor.camera_da_letto_temperature
+            hour24: true
+            show:
+              labels: true
+              icon: true
+              name: true
+              state: true
+              fill: false
+        title: "\U0001F3E0 Indoor"
+        type: 'custom:vertical-stack-in-card'
+      - cards:
           - card:
               show_header_toggle: false
               title: Riscaldamento
@@ -348,6 +395,7 @@ views:
               include:
                 - entity_id: sensor.*temperature
             type: 'custom:monster-card'
+        type: vertical-stack
     path: climate
     title: Climatizzazione
   - badges: []
@@ -419,11 +467,8 @@ views:
           include:
             - entity_id: '*m5stickc*'
         type: 'custom:monster-card'
-      - title: M5StickC ENV Unit
-        type: 'custom:vertical-stack-in-card'
-        cards:
-          - type: horizontal-stack
-            cards:
+      - cards:
+          - cards:
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
@@ -436,8 +481,8 @@ views:
                   - entity: sensor.m5stickc_bmp280_pressure
                   - name: Pressione
                   - size: 200
-          - type: horizontal-stack
-            cards:
+            type: horizontal-stack
+          - cards:
               - template: termometro
                 type: 'custom:decluttering-card'
                 variables:
@@ -452,9 +497,19 @@ views:
                   - name: Temperatura (DHT12)
                   - size: 140
                   - height: 300
-          - type: sensor
-            entity: sensor.m5stickc_bmp280_temperature
-            name: Temperatura (BMP280)
-            graph: line
+            type: horizontal-stack
+          - type: 'custom:mini-graph-card'
+            entities:
+              - sensor.m5stickc_bmp280_temperature
+              - sensor.m5stickc_dht12_temperature
+            hour24: true
+            show:
+              labels: true
+              icon: true
+              name: true
+              state: true
+              fill: false
+        title: M5StickC ENV Unit
+        type: 'custom:vertical-stack-in-card'
     icon: 'mdi:wrench'
     title: Lab
