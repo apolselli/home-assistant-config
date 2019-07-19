@@ -1,0 +1,89 @@
+substitutions:
+  devicename: m5stickc_env
+  upper_devicename: M5StickC ENV Hat
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: m5stack-core-esp32
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: 192.168.1.44
+
+logger:
+
+#api:
+
+ota:
+
+mqtt:
+  broker: 192.168.1.100
+
+# ENV Hat
+i2c:
+  sda: 0
+  scl: 26
+  scan: True
+
+deep_sleep:
+  id: deep_sleep_1
+  run_duration: 3min
+  sleep_duration: 37min
+  wakeup_pin:
+    number: GPIO39          # Button B is a RTC pin (GPIO0, GPIO2, GPIO4, GPIO12, GPIO13, GPIO14, GPIO15, GPIO25, GPIO26, GPIO27, GPIO32, GPIO39)
+    inverted: true
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO37
+      inverted: true
+    name: ${upper_devicename} Button A
+    on_press:
+      then:
+        - switch.toggle: led1
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    name: ${upper_devicename} Button B
+    on_press:
+      then:
+        - switch.toggle: led1
+#  - platform: gpio
+#    pin:
+#      number: GPIO33
+#      inverted: true
+#    name: ${upper_devicename} Grove Button
+#    on_press:
+#      then:
+#        - switch.toggle: led1
+
+sensor:
+  - platform: wifi_signal
+    name: ${upper_devicename} WiFi Signal
+  - platform: uptime
+    name: ${upper_devicename} Uptime
+  - platform: bmp280
+    temperature:
+      name: ${upper_devicename} BMP280 Temperature
+    pressure:
+      name: ${upper_devicename} BMP280 Pressure
+    address: 0x76
+  - platform: dht12
+    temperature:
+      name: ${upper_devicename} DHT12 Temperature
+    humidity:
+      name: ${upper_devicename} DHT12 Humidity
+
+switch:
+  - platform: restart
+    name: ${upper_devicename} Restart
+  - platform: gpio
+    pin:
+      number: GPIO10
+      inverted: true
+    name: ${upper_devicename} Led
+    id: led1
