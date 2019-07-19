@@ -1,0 +1,58 @@
+substitutions:
+  devicename: m5cameraf
+  upper_devicename: M5CameraF
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: m5stack-core-esp32
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+
+api:
+
+ota:
+
+#web_server:
+#  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: ${upper_devicename} WiFi Signal
+  - platform: uptime
+    name: ${upper_devicename} Uptime
+
+switch:
+  - platform: restart
+    name: ${upper_devicename} Restart
+  - platform: gpio
+    pin:
+      number: GPIO14
+    name: ${upper_devicename} Led
+    id: led1
+
+# text_sensor:
+#   - platform: version
+#     name: ${upper_devicename} ESPHome Version
+
+esp32_camera:
+  external_clock:
+    pin: GPIO27
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO22
+    scl: GPIO23
+  data_pins: [GPIO32, GPIO35, GPIO34, GPIO5, GPIO39, GPIO18, GPIO36, GPIO19]
+  vsync_pin: GPIO25
+  href_pin: GPIO26
+  pixel_clock_pin: GPIO21
+  reset_pin: GPIO15
+  # Image settings
+  name: ${upper_devicename}
+  resolution: 1600x1200
+  max_framerate: 4 fps
+  idle_framerate: 0.1 fps
