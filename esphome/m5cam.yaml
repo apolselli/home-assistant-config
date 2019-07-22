@@ -25,7 +25,7 @@ ota:
 binary_sensor:
   - platform: gpio
     pin: GPIO4
-    name: ${upper_devicename} PIR Sensor
+    name: ${upper_devicename} PIR
     device_class: motion
     on_press:
       then:
