@@ -105,30 +105,6 @@
   - service: switch.turn_off
     entity_id: switch.smart_usb_relay
 
-- id: '5000'
-  alias: Riavvia hassio se non pinga il router per 5 minuti
-  initial_state: 'off'
-  trigger:
-  - entity_id: binary_sensor.ping_binary_sensor
-    for: 00:05:00
-    from: 'on'
-    platform: state
-    to: 'off'
-  action:
-  - service: hassio.host_reboot
-- id: '6000'
-  alias: Riavvia hassio se non pinga il router dopo l’avvio
-  initial_state: 'off'
-  trigger:
-  - event: start
-    platform: homeassistant
-  condition:
-  - condition: state
-    entity_id: binary_sensor.ping_binary_sensor
-    state: 'off'
-  action:
-  - service: hassio.host_reboot
-
 - id: '7000'
   alias: Notifica rilevazione movimento Camera 1
   initial_state: 'on'
@@ -300,45 +276,26 @@
   action:
   - service: homeassistant.restart
 
-- id: '20000'
-  alias: "Notifica temperatura esterna superiore a quella interna"
-  hide_entity: true
-  initial_state: 'on'
-  trigger:
-    platform: template
-    value_template: "{{ ((states.sensor.dark_sky_temperature.state|float) > (states.sensor.camera_da_letto_temperature.state|float)) and states.sensor.camera_da_letto_temperature.state|float > 0 }}"
-  condition:
-    condition: template
-    value_template: "{{ (states.sensor.mese_corrente.state > '2') and (states.sensor.mese_corrente.state < '5') }}"
-  action:
-     service: notify.notify
-     data:
-       title: "Domotica"
-       message: "Rilevata temperatura esterna superiore a quella interna."
-- id: '20010'
-  alias: "Notifica temperatura esterna inferiore a quella interna"
-  hide_entity: true
-  initial_state: 'on'
-  trigger:
-    platform: template
-    value_template: "{{ ((states.sensor.dark_sky_temperature.state|float) < (states.sensor.camera_da_letto_temperature.state|float)) and states.sensor.camera_da_letto_temperature.state|float > 0 }}"
-  condition:
-    condition: template
-    value_template: "{{ (states.sensor.mese_corrente.state > '8') and (states.sensor.mese_corrente.state < '11') }}"
-  action:
-     service: notify.notify
-     data:
-       title: "Domotica"
-       message: "Rilevata temperatura esterna inferiore a quella interna."
-
 - id: '30000'
   alias: "M5StickC Led acceso accende tutte le luci"
   hide_entity: true
   initial_state: 'on'
   trigger:
     platform: state
-    entity_id: switch.m5stickc_led_2
+    entity_id: switch.m5stickc_pir_hat_led_2
     to: 'on'
   action:
   - service: light.turn_on
+    entity_id: group.all_lights
+- id: '30010'
+  alias: "M5StickC Led spento spegne tutte le luci"
+  hide_entity: true
+  initial_state: 'on'
+  trigger:
+    platform: state
+    entity_id: switch.m5stickc_pir_hat_led_2
+    from: 'on'
+    to: 'off'
+  action:
+  - service: light.turn_off
     entity_id: group.all_lights
