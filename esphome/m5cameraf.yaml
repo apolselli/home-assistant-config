@@ -32,6 +32,7 @@ switch:
   - platform: gpio
     pin:
       number: GPIO14
+      inverted: true
     name: ${upper_devicename} Led
     id: led1
 
@@ -53,6 +54,6 @@ esp32_camera:
   reset_pin: GPIO15
   # Image settings
   name: ${upper_devicename}
-  resolution: 1600x1200
+  resolution: 800x600
   max_framerate: 4 fps
   idle_framerate: 0.1 fps
