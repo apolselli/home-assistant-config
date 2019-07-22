@@ -46,6 +46,17 @@ zeroconf:
 hacs:
   token: !secret hacs_github_token
 
+api:
+
+alexa:
+  smart_home:
+    filter:
+      exclude_domains:
+        - climate
+        - automation
+        - group
+        - binary_sensor
+
 shelly:
   discovery: true
   devices:
@@ -55,23 +66,37 @@ shelly:
       
 sensor:
   - platform: fritzbox_netmonitor
+    host: 192.168.1.254
   - platform: systemmonitor
     resources:
       - type: memory_free
       - type: processor_use
+      - type: disk_use_percent
+        arg: /
+      - type: disk_free
+        arg: /
   - platform: uptime
     unit_of_measurement: hours
-  - platform: darksky
-    api_key: !secret darksky_api_key
-    forecast:
-      - 0
-    monitored_conditions:
-      - temperature
   - platform: template
     sensors:
-      mese_corrente:
-        value_template: "{{ now().month }}"
-        friendly_name: 'Mese corrente'
+      met_temperature:
+        friendly_name: "Temperatura esterna"
+        value_template: "{{ state_attr('weather.casa','temperature') }}"
+        unit_of_measurement: '°C'
+        icon_template: mdi:thermometer
+        entity_id: weather.casa
+      met_humidity:
+        friendly_name: "Umidità esterna"
+        value_template: "{{ state_attr('weather.casa','humidity') }}"
+        unit_of_measurement: '%'
+        icon_template: mdi:water-percent
+        entity_id: weather.casa
+      met_pressure:
+        friendly_name: "Pressione esterna"
+        value_template: "{{ state_attr('weather.casa','pressure') }}"
+        unit_of_measurement: 'hPa'
+        icon_template: mdi:gauge
+        entity_id: weather.casa
   - platform: filesize
     file_paths:
       - /config/home-assistant_v2.db
@@ -83,10 +108,6 @@ remote:
     host: 192.168.1.214
     name: Harmony Hub
     activity: Guarda TV
-
-weather:
-  - platform: darksky
-    api_key: !secret darksky_api_key
 
 switch:
   - platform: command_line
@@ -189,7 +210,8 @@ recorder:
       - sensor.home_assistant_v2_db
       - sensor.memory_free
       - sensor.processor_use
-      - sensor.dark_sky_temperature
+      - sensor.met_temperature
+      - sensor.met_humidity
       - sensor.cameretta_temperature
       - sensor.cameretta_humidity
       - sensor.cucina_temperature
@@ -198,10 +220,10 @@ recorder:
       - sensor.camera_da_letto_humidity
       - sensor.soggiorno_temperature
       - sensor.soggiorno_humidity
-      - sensor.m5stickc_dht12_temperature
-      - sensor.m5stickc_dht12_humidity
-      - sensor.m5stickc_bmp280_temperature
-      - sensor.m5stickc_bmp280_pressure
+      - sensor.m5stickc_env_hat_dht12_temperature
+      - sensor.m5stickc_env_hat_dht12_humidity
+      - sensor.m5stickc_env_hat_bmp280_temperature
+      - sensor.m5stickc_env_hat_bmp280_pressure
   
 # Enables support for tracking state changes over time
 history:
