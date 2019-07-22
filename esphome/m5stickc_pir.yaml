@@ -57,6 +57,7 @@ binary_sensor:
     pin:
       number: GPIO36
     name: ${upper_devicename} PIR
+    device_class: motion
 
 sensor:
   - platform: wifi_signal
