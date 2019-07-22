@@ -56,3 +56,19 @@ notify_camera3:
         - file: /tmp/m5cam_snapshot.jpg
           caption: Camera 3
           inline_keyboard: 'Toggle motion detection:/toggle_camera3_motion_detection'
+
+notify_camera4:
+  alias: Notifica Camera 4
+  sequence:
+  - service: camera.snapshot
+    data:
+      entity_id: camera.m5cameraf
+      filename: '/tmp/m5cameraf_snapshot.jpg'
+  - delay: '00:00:02'
+  - service: notify.notify
+    data:
+      message: Camera 4
+      data:
+        photo:
+        - file: /tmp/m5cameraf_snapshot.jpg
+          caption: Camera 4
