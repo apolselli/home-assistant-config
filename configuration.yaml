@@ -63,7 +63,7 @@ shelly:
     - id: 32C429
       light_switch: true
       name: Soggiorno Shelly
-      
+
 sensor:
   - platform: fritzbox_netmonitor
     host: 192.168.1.254
@@ -190,7 +190,17 @@ zone:
     longitude: !secret longitude
     radius: 50
 
+smartir:
+
 media_player:
+  - platform: smartir
+    name: LG smartir M5StickC PIR Hat
+    device_code: 1001
+    controller_data: m5stickc_pir/transmit_lg
+  - platform: smartir
+    name: LG smartir M5CameraF
+    device_code: 1001
+    controller_data: m5cameraf/transmit_lg
   - platform: webostv
     host: 192.168.1.207
     turn_on_action:
