@@ -113,71 +113,31 @@ resources:
     url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
   - type: module
     url: /community_plugin/mini-media-player/mini-media-player.js
-  - url: /community_plugin/simple-weather-card/simple-weather-card.js
-    type: module
-  - url: /community_plugin/mini-graph-card/mini-graph-card.js
-    type: module
+  - type: module
+    url: /community_plugin/simple-weather-card/simple-weather-card.js
+  - type: module
+    url: /community_plugin/mini-graph-card/mini-graph-card.js
 title: Home Assistant
 views:
   - badges: []
     cards:
-      - type: 'custom:simple-weather-card'
-        entity: weather.dark_sky
+      - entity: weather.casa
         name: ' '
-      - type: 'custom:mini-graph-card'
-        entities:
+        type: 'custom:simple-weather-card'
+      - entities:
           - sensor.soggiorno_temperature
           - sensor.cucina_temperature
           - sensor.cameretta_temperature
           - sensor.camera_da_letto_temperature
         hour24: true
         show:
-          labels: true
-          icon: true
-          name: true
-          state: true
           fill: false
-      - entity: media_player.lg_webos_smart_tv
-        hide:
-          controls: true
+          icon: true
+          labels: true
           name: true
+        type: 'custom:mini-graph-card'
+      - entity: media_player.lg_webos_smart_tv
         type: 'custom:mini-media-player'
-      - entities:
-          - entity: sensor.uptime
-          - entity: sensor.memory_free
-          - entity: sensor.processor_use
-          - entity: sensor.home_assistant_v2_db
-          - entity: sensor.rpi_power_status
-        title: Sistema
-        type: glance
-      - entities:
-          - entity: binary_sensor.ping_binary_sensor
-          - entity: sensor.fritz_netmonitor
-        title: Rete
-        type: glance
-      - card:
-          card:
-            title: Persone in casa
-            type: glance
-          entities:
-            - entity: group.alex
-            - entity: group.mari
-          state_filter:
-            - home
-          type: entity-filter
-        conditions:
-          - entity: group.people
-            state: home
-        type: conditional
-      - card:
-          title: Luci accese
-          type: entities
-        filter:
-          include:
-            - domain: light
-              state: 'on'
-        show_empty: false
-        type: 'custom:monster-card'
       - cards:
           - camera_image: camera.hikam_s5
             entities:
@@ -202,12 +162,39 @@ views:
             type: horizontal-stack
         type: vertical-stack
       - entities:
-          - entity: binary_sensor.m5cam_pir_sensor
-            secondary_info: last-changed
-        type: entities
-      - type: entities
-        entities:
+          - entity: sensor.uptime
+          - entity: sensor.memory_free
+          - entity: sensor.processor_use
+          - entity: sensor.home_assistant_v2_db
+          - entity: sensor.rpi_power_status
+        title: Sistema
+        type: glance
+      - card:
+          title: Luci accese
+          type: entities
+        filter:
+          include:
+            - domain: light
+              state: 'on'
+        show_empty: false
+        type: 'custom:monster-card'
+      - card:
+          card:
+            title: Persone in casa
+            type: glance
+          entities:
+            - entity: group.alex
+            - entity: group.mari
+          state_filter:
+            - home
+          type: entity-filter
+        conditions:
+          - entity: group.people
+            state: home
+        type: conditional
+      - entities:
           - entity: group.all_lights
+        type: entities
     path: default_view
     title: Home
   - badges: []
@@ -271,6 +258,18 @@ views:
         show_header_toggle: false
         title: Mariangela
         type: entities
+      - card:
+          title: Motion Detection
+          type: entities
+        filter:
+          include:
+            - entity_id: switch.*motion*
+            - entity_id: input_boolean.*motion*
+        type: 'custom:monster-card'
+      - entities:
+          - entity: binary_sensor.m5cam_pir
+            secondary_info: last-changed
+        type: entities
     icon: 'mdi:account-multiple'
     path: people
     title: Persone
@@ -278,39 +277,38 @@ views:
     cards:
       - cards:
           - cards:
-              - type: 'custom:mini-graph-card'
-                entities:
-                  - sensor.dark_sky_temperature
-                  - sensor.m5stickc_dht12_temperature
-                  - sensor.m5stickc_bmp280_temperature
+              - entities:
+                  - sensor.met_temperature
+                  - sensor.m5stickc_env_hat_dht12_temperature
+                  - sensor.m5stickc_env_hat_bmp280_temperature
                 hour24: true
                 show:
-                  labels: true
+                  fill: false
                   icon: true
+                  labels: true
                   name: false
                   state: true
-                  fill: false
+                type: 'custom:mini-graph-card'
               - cards:
                   - template: termometro
                     type: 'custom:decluttering-card'
                     variables:
-                      - entity: sensor.dark_sky_temperature
-                      - name: Dark Sky
+                      - entity: sensor.met_temperature
                   - template: termometro
                     type: 'custom:decluttering-card'
                     variables:
-                      - entity: sensor.m5stickc_bmp280_temperature
+                      - entity: sensor.m5stickc_env_hat_bmp280_temperature
                 type: horizontal-stack
             type: horizontal-stack
           - cards:
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_dht12_humidity
+                  - entity: sensor.m5stickc_env_hat_dht12_humidity
               - template: barometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_bmp280_pressure
+                  - entity: sensor.m5stickc_env_hat_bmp280_pressure
             type: horizontal-stack
         title: ⛅ Outdoor
         type: 'custom:vertical-stack-in-card'
@@ -363,19 +361,19 @@ views:
                   - name: Camera da letto
                   - size: 100
             type: horizontal-stack
-          - type: 'custom:mini-graph-card'
-            entities:
+          - entities:
               - sensor.cucina_temperature
               - sensor.soggiorno_temperature
               - sensor.cameretta_temperature
               - sensor.camera_da_letto_temperature
             hour24: true
             show:
-              labels: true
+              fill: false
               icon: true
+              labels: true
               name: true
               state: true
-              fill: false
+            type: 'custom:mini-graph-card'
         title: "\U0001F3E0 Indoor"
         type: 'custom:vertical-stack-in-card'
       - cards:
@@ -413,7 +411,7 @@ views:
     cards:
       - card:
           title: Motion Detection
-          type: glance
+          type: entities
         filter:
           include:
             - entity_id: switch.*motion*
@@ -446,6 +444,21 @@ views:
           - switch.camera_2_motion_detection
         title: Soggiorno
         type: picture-glance
+      - card:
+          show_header_toggle: false
+          title: LG TV
+          type: entities
+        filter:
+          include:
+            - entity_id: '*lg*'
+        type: 'custom:monster-card'
+      - camera_image: camera.m5cameraf
+        camera_view: live
+        entities:
+          - sensor.soggiorno_temperature
+          - sensor.soggiorno_humidity
+        title: M5CameraF
+        type: picture-glance
     icon: 'mdi:cctv'
     theme: default
     title: Videosorveglianza
@@ -453,63 +466,102 @@ views:
     cards:
       - card:
           show_header_toggle: false
-          title: M5Cam
+          title: M5CameraF
           type: entities
         filter:
           include:
-            - entity_id: '*m5cam*'
-        type: 'custom:monster-card'
-      - card:
-          show_header_toggle: false
-          title: M5StickC
-          type: entities
-        filter:
-          include:
-            - entity_id: '*m5stickc*'
+            - entity_id: '*m5cameraf*'
         type: 'custom:monster-card'
       - cards:
           - cards:
               - template: igrometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_dht12_humidity
+                  - entity: sensor.m5stickc_env_hat_dht12_humidity
                   - name: Umidità
-                  - size: 200
               - template: barometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_bmp280_pressure
+                  - entity: sensor.m5stickc_env_hat_bmp280_pressure
                   - name: Pressione
-                  - size: 200
             type: horizontal-stack
           - cards:
               - template: termometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_bmp280_temperature
+                  - entity: sensor.m5stickc_env_hat_bmp280_temperature
                   - name: Temperatura (BMP280)
                   - size: 140
                   - height: 300
               - template: termometro
                 type: 'custom:decluttering-card'
                 variables:
-                  - entity: sensor.m5stickc_dht12_temperature
+                  - entity: sensor.m5stickc_env_hat_dht12_temperature
                   - name: Temperatura (DHT12)
                   - size: 140
                   - height: 300
             type: horizontal-stack
-          - type: 'custom:mini-graph-card'
-            entities:
-              - sensor.m5stickc_bmp280_temperature
-              - sensor.m5stickc_dht12_temperature
+          - entities:
+              - sensor.m5stickc_env_hat_bmp280_temperature
+              - sensor.m5stickc_env_hat_dht12_temperature
+              - entity: sensor.m5stickc_env_hat_dht12_humidity
+                y_axis: secondary
             hour24: true
             show:
-              labels: true
+              fill: false
               icon: true
+              labels: true
               name: true
               state: true
-              fill: false
+            type: 'custom:mini-graph-card'
         title: M5StickC ENV Unit
         type: 'custom:vertical-stack-in-card'
+      - card:
+          show_header_toggle: false
+          title: M5StickC PIR Hat
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5stickc_pir*'
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: false
+          title: M5Cam
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5cam'
+            - entity_id: '*m5cam_*'
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: false
+          title: M5StickC ENV Hat
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5stickc_env*'
+        type: 'custom:monster-card'
     icon: 'mdi:wrench'
     title: Lab
+  - badges: []
+    cards:
+      - entities:
+          - entity: sensor.uptime
+          - entity: sensor.memory_free
+          - entity: sensor.processor_use
+          - entity: sensor.rpi_power_status
+        title: System
+        type: glance
+      - entities:
+          - entity: binary_sensor.ping_binary_sensor
+          - entity: sensor.fritz_netmonitor
+        title: Network
+        type: glance
+      - entities:
+          - entity: sensor.disk_free
+          - entity: sensor.disk_use_percent
+          - entity: sensor.home_assistant_v2_db
+        title: Storage
+        type: glance
+    icon: 'mdi:server-network'
+    title: System
