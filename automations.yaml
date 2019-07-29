@@ -51,7 +51,7 @@
   - service: input_boolean.turn_on
     entity_id: input_boolean.camera_3_motion_detection
   - service: switch.turn_on
-    entity_id: switch.smart_usb_relay
+    entity_id: switch.smart_usb_relay_2
 
 - id: '3500'
   alias: 'Notifica quando vengono accese luci con nessuno in casa'
@@ -103,7 +103,7 @@
   - service: input_boolean.turn_off
     entity_id: input_boolean.camera_3_motion_detection
   - service: switch.turn_off
-    entity_id: switch.smart_usb_relay
+    entity_id: switch.smart_usb_relay_2
 
 - id: '7000'
   alias: Notifica rilevazione movimento Camera 1
@@ -136,7 +136,7 @@
   initial_state: 'on'
   trigger:
   - platform: state
-    entity_id: binary_sensor.m5cam_pir_sensor
+    entity_id: binary_sensor.m5cam_pir
     to: 'on'
   condition:
   - condition: state
@@ -163,7 +163,7 @@
       message: 'commands'
       data:
         keyboard:
-          - '/camera1, /camera2, /camera3'
+          - '/camera1, /camera2, /camera3, /camera4'
           - '/lights_off, /lights_on'
           - '/restart'
 
@@ -200,6 +200,17 @@
   action:
   - service: script.turn_on
     entity_id: script.notify_camera3
+- id: '10030'
+  alias: 'Telegram camera4'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/camera4'
+  action:
+  - service: script.turn_on
+    entity_id: script.notify_camera4
 
 - id: '10100'
   alias: 'Telegram lights OFF'
@@ -277,25 +288,32 @@
   - service: homeassistant.restart
 
 - id: '30000'
-  alias: "M5StickC Led acceso accende tutte le luci"
+  alias: "M5StickC spegne lampada e lampadario"
   hide_entity: true
   initial_state: 'on'
   trigger:
     platform: state
-    entity_id: switch.m5stickc_pir_hat_led_2
+    entity_id: binary_sensor.m5stickc_pir_hat_button_a
     to: 'on'
+  condition:
+    condition: state
+    entity_id: light.soggiorno_lampadario
+    state: 'on'
   action:
-  - service: light.turn_on
-    entity_id: group.all_lights
+    - service: light.turn_off
+      entity_id: group.all_lights
 - id: '30010'
-  alias: "M5StickC Led spento spegne tutte le luci"
+  alias: "M5StickC accende lampada e lampadario"
   hide_entity: true
   initial_state: 'on'
   trigger:
     platform: state
-    entity_id: switch.m5stickc_pir_hat_led_2
-    from: 'on'
-    to: 'off'
+    entity_id: binary_sensor.m5stickc_pir_hat_button_a
+    to: 'on'
+  condition:
+    condition: state
+    entity_id: light.soggiorno_lampadario
+    state: 'off'
   action:
-  - service: light.turn_off
-    entity_id: group.all_lights
+    - service: light.turn_on
+      entity_id: group.all_lights
