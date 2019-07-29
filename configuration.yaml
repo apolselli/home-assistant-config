@@ -15,6 +15,7 @@ homeassistant:
   whitelist_external_dirs:
     - /config               # for filesize sensor
     - /tmp                  # for camera snapshots
+  packages: !include_dir_named packages
 
 # Enables the frontend
 frontend:
@@ -67,14 +68,15 @@ shelly:
 sensor:
   - platform: fritzbox_netmonitor
     host: 192.168.1.254
-  - platform: systemmonitor
+  - platform: glances
+    version: 3
+    host: localhost
     resources:
-      - type: memory_free
-      - type: processor_use
-      - type: disk_use_percent
-        arg: /
-      - type: disk_free
-        arg: /
+      - 'disk_use_percent'
+      - 'cpu_temp'
+      - 'disk_free'
+      - 'cpu_use_percent'
+      - 'memory_free'
   - platform: uptime
     unit_of_measurement: hours
   - platform: template
@@ -103,12 +105,12 @@ sensor:
   - platform: rpi_power
     text_state: true
   
-remote:
-  - platform: harmony
-    host: 192.168.1.214
-    name: Harmony Hub
-    activity: Guarda TV
-
+#remote:
+#  - platform: harmony
+#    host: 192.168.1.214
+#    name: Harmony Hub
+#    activity: Guarda TV
+#
 switch:
   - platform: command_line
     switches:
@@ -157,27 +159,18 @@ camera:
     mjpeg_url: http://localhost:8082
     still_image_url: http://localhost:8765/picture/2/current/
 
-hue:
-  bridges:
-    - host: 192.168.1.85  
-      allow_unreachable: false
-      allow_hue_groups: false
+#hue:
+#  bridges:
+#    - host: 192.168.1.85  
+#      allow_unreachable: false
+#      allow_hue_groups: false
 
 tado:
   username: !secret tado_username
   password: !secret tado_password
 
 device_tracker:
-#  - platform: nmap_tracker
-#    hosts:
-#      - 192.168.1.210 # Ale
-#      - 192.168.1.211 # Mari
   - platform: bluetooth_tracker
-#  - platform: icloud
-#    username: !secret icloud_username
-#    password: !secret icloud_password
-#    account_name: Alessandro
-#    gps_accuracy_threshold: 100
   - platform: tado
     username: !secret tado_username
     password: !secret tado_password
@@ -204,7 +197,8 @@ media_player:
   - platform: webostv
     host: 192.168.1.207
     turn_on_action:
-      service: script.tv_on
+    - service: switch.turn_on
+      entity_id: switch.m5stickc_pir_hat_lg_tv_power_on_2
 
 recorder:
   purge_interval: 1
@@ -218,8 +212,10 @@ recorder:
   include:
     entities:
       - sensor.home_assistant_v2_db
-      - sensor.memory_free
-      - sensor.processor_use
+      - sensor.0x00158d00018534af_action
+      - sensor.glances_ram_free
+      - sensor.glances_cpu_used
+      - sensor.glances_cpu_temp
       - sensor.met_temperature
       - sensor.met_humidity
       - sensor.cameretta_temperature
