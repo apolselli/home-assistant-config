@@ -1,0 +1,23 @@
+homekit:
+  auto_start: false
+  filter:
+    include_domains:
+      - light
+      - climate
+      - media_player
+  entity_config:
+    media_player.lg_webos_smart_tv:
+      feature_list:
+        - feature: on_off
+        - feature: play_pause
+        - feature: play_stop
+        - feature: toggle_mute
+
+automation:
+  - alias: 'Start HomeKit'
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - delay: 00:02  # Waits 2 minutes
+      - service: homekit.start
