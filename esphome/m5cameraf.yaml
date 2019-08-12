@@ -1,3 +1,5 @@
+# M5CameraF - https://github.com/m5stack/m5stack-cam-psram/tree/master
+
 substitutions:
   devicename: m5cameraf
   upper_devicename: M5CameraF
@@ -18,7 +20,7 @@ api:
 ota:
 
 mqtt:
-  broker: 192.168.1.100
+  broker: 192.168.1.200
   discovery: false
   on_json_message:
     topic: ${devicename}/transmit_lg        # Examples of json payload : { "data": 551527260, "nbits": 32 }
@@ -34,7 +36,7 @@ mqtt:
             if (x.containsKey("nbits"))
               nbits = x["nbits"];
             return nbits;
-          
+
 # Grove IR Transmitter
 remote_transmitter:
   pin:
@@ -78,6 +80,6 @@ esp32_camera:
   reset_pin: GPIO15
   # Image settings
   name: ${upper_devicename}
-  resolution: 800x600
-  max_framerate: 2 fps
+  resolution: 1600x1200
+  max_framerate: 1 fps
   idle_framerate: 0.1 fps
