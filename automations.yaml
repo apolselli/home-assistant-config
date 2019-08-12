@@ -39,8 +39,10 @@
     entity_id: switch.camera_1_motion_detection
   - service: switch.turn_on
     entity_id: switch.camera_2_motion_detection
+  - service: switch.turn_on
+    entity_id: switch.camera_3_motion_detection
   - service: input_boolean.turn_on
-    entity_id: input_boolean.camera_3_motion_detection
+    entity_id: input_boolean.camera_4_motion_detection
   - service: switch.turn_on
     entity_id: switch.smart_usb_relay_2
 
@@ -91,8 +93,10 @@
     entity_id: switch.camera_1_motion_detection
   - service: switch.turn_off
     entity_id: switch.camera_2_motion_detection
+  - service: switch.turn_off
+    entity_id: switch.camera_3_motion_detection
   - service: input_boolean.turn_off
-    entity_id: input_boolean.camera_3_motion_detection
+    entity_id: input_boolean.camera_4_motion_detection
   - service: switch.turn_off
     entity_id: switch.smart_usb_relay_2
 
@@ -126,19 +130,32 @@
   alias: Notifica rilevazione movimento Camera 3
   initial_state: 'on'
   trigger:
+  - payload: camera3
+    platform: mqtt
+    topic: motion_detection
+  action:
+  - service: notify.notify
+    data:
+      message: Camera 3 motion detection (Xiaovv Q8)
+  - service: script.turn_on
+    entity_id: script.notify_camera3
+- id: '7020'
+  alias: Notifica rilevazione movimento Camera 4
+  initial_state: 'on'
+  trigger:
   - platform: state
     entity_id: binary_sensor.m5cam_pir
     to: 'on'
   condition:
   - condition: state
-    entity_id: input_boolean.camera_3_motion_detection
+    entity_id: input_boolean.camera_4_motion_detection
     state: 'on'
   action:
   - service: notify.notify
     data:
-      message: Camera 3 motion detection (m5cam)
+      message: Camera 4 motion detection (m5cam)
   - service: script.turn_on
-    entity_id: script.notify_camera3
+    entity_id: script.notify_camera4
     
 - id: '9000'
   alias: 'Telegram start'
@@ -154,7 +171,7 @@
       message: 'commands'
       data:
         keyboard:
-          - '/camera1, /camera2, /camera3, /camera4'
+          - '/cam1, /cam2, /cam3, /cam4, /cam5'
           - '/lights_off, /lights_on'
           - '/restart'
 
@@ -165,7 +182,7 @@
   - platform: event
     event_type: telegram_command
     event_data:
-      command: '/camera1'
+      command: '/cam1'
   action:
   - service: script.turn_on
     entity_id: script.notify_camera1
@@ -176,7 +193,7 @@
   - platform: event
     event_type: telegram_command
     event_data:
-      command: '/camera2'
+      command: '/cam2'
   action:
   - service: script.turn_on
     entity_id: script.notify_camera2
@@ -187,7 +204,7 @@
   - platform: event
     event_type: telegram_command
     event_data:
-      command: '/camera3'
+      command: '/cam3'
   action:
   - service: script.turn_on
     entity_id: script.notify_camera3
@@ -198,10 +215,21 @@
   - platform: event
     event_type: telegram_command
     event_data:
-      command: '/camera4'
+      command: '/cam4'
   action:
   - service: script.turn_on
     entity_id: script.notify_camera4
+- id: '10040'
+  alias: 'Telegram camera5'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_command
+    event_data:
+      command: '/cam5'
+  action:
+  - service: script.turn_on
+    entity_id: script.notify_camera5
 
 - id: '10100'
   alias: 'Telegram lights OFF'
@@ -262,11 +290,25 @@
     event_data:
       data: '/toggle_camera3_motion_detection'
   action:
-  - service: input_boolean.toggle
-    entity_id: input_boolean.camera_3_motion_detection
+  - service: switch.toggle
+    entity_id: switch.camera_3_motion_detection
   - service: notify.notify
     data_template:
-      message: '{{ states.input_boolean.camera_3_motion_detection.state }}'
+      message: '{{ states.switch.camera_3_motion_detection.state }}'
+- id: '11030'
+  alias: 'Toggle camera4 motion detection'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/toggle_camera4_motion_detection'
+  action:
+  - service: input_boolean.toggle
+    entity_id: input_boolean.camera_4_motion_detection
+  - service: notify.notify
+    data_template:
+      message: '{{ states.input_boolean.camera_4_motion_detection.state }}'
 - id: '12000'
   alias: 'Telegram restart home assistant'
   initial_state: 'on'
