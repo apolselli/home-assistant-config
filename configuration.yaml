@@ -126,9 +126,15 @@ switch:
         command_state: "/usr/bin/curl http://localhost:7999/1/detection/status"
         value_template: '{{ "ACTIVE" in value }}'
         friendly_name: HiKam S5 Motion Detection
+      camera_3_motion_detection:
+        command_on: "/usr/bin/curl http://localhost:7999/2/detection/start"
+        command_off: "/usr/bin/curl http://localhost:7999/2/detection/pause"
+        command_state: "/usr/bin/curl http://localhost:7999/2/detection/status"
+        value_template: '{{ "ACTIVE" in value }}'
+        friendly_name: Xiaovv Q8 Motion Detection
 
 input_boolean:
-  camera_3_motion_detection:
+  camera_4_motion_detection:
     name: M5Cam Motion Detection
     initial: off
 
@@ -158,6 +164,10 @@ camera:
     name: HiKam S5
     mjpeg_url: http://localhost:8082
     still_image_url: http://localhost:8765/picture/2/current/
+  - platform: mjpeg     # camera3 setup with motion
+    name: Xiaovv Q8
+    mjpeg_url: http://localhost:8083
+    still_image_url: http://localhost:8765/picture/3/current/
 
 #hue:
 #  bridges:
