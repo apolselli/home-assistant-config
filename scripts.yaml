@@ -43,17 +43,12 @@ notify_camera2:
 notify_camera3:
   alias: Notifica Camera 3
   sequence:
-  - service: camera.snapshot
-    data:
-      entity_id: camera.m5cam
-      filename: '/tmp/m5cam_snapshot.jpg'
-  - delay: '00:00:02'
   - service: notify.notify
     data:
       message: Camera 3
       data:
         photo:
-        - file: /tmp/m5cam_snapshot.jpg
+        - url: http://localhost:8765/picture/3/current/
           caption: Camera 3
           inline_keyboard: 'Toggle motion detection:/toggle_camera3_motion_detection'
 
@@ -62,13 +57,30 @@ notify_camera4:
   sequence:
   - service: camera.snapshot
     data:
-      entity_id: camera.m5cameraf
-      filename: '/tmp/m5cameraf_snapshot.jpg'
+      entity_id: camera.m5cam
+      filename: '/tmp/m5cam_snapshot.jpg'
   - delay: '00:00:02'
   - service: notify.notify
     data:
       message: Camera 4
       data:
         photo:
-        - file: /tmp/m5cameraf_snapshot.jpg
+        - file: /tmp/m5cam_snapshot.jpg
           caption: Camera 4
+          inline_keyboard: 'Toggle motion detection:/toggle_camera4_motion_detection'
+
+notify_camera5:
+  alias: Notifica Camera 5
+  sequence:
+  - service: camera.snapshot
+    data:
+      entity_id: camera.m5cameraf
+      filename: '/tmp/m5cameraf_snapshot.jpg'
+  - delay: '00:00:02'
+  - service: notify.notify
+    data:
+      message: Camera 5
+      data:
+        photo:
+        - file: /tmp/m5cameraf_snapshot.jpg
+          caption: Camera 5
