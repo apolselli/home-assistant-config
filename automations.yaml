@@ -37,10 +37,6 @@
       message: 'Attivo motion detection'
   - service: switch.turn_on
     entity_id: switch.camera_1_motion_detection
-  - service: switch.turn_on
-    entity_id: switch.camera_2_motion_detection
-  - service: switch.turn_on
-    entity_id: switch.camera_3_motion_detection
   - service: input_boolean.turn_on
     entity_id: input_boolean.camera_4_motion_detection
   - service: switch.turn_on
@@ -91,10 +87,6 @@
       message: 'Disattivo motion detection'
   - service: switch.turn_off
     entity_id: switch.camera_1_motion_detection
-  - service: switch.turn_off
-    entity_id: switch.camera_2_motion_detection
-  - service: switch.turn_off
-    entity_id: switch.camera_3_motion_detection
   - service: input_boolean.turn_off
     entity_id: input_boolean.camera_4_motion_detection
   - service: switch.turn_off
@@ -111,34 +103,9 @@
   - service: notify.notify
     data:
       message: Camera 1 motion detection (Pi Zero W)
-  - service: script.turn_on
-    entity_id: script.notify_camera1
-- id: '7010'
-  alias: Notifica rilevazione movimento Camera 2
-  initial_state: 'on'
-  trigger:
-  - payload: camera2
-    platform: mqtt
-    topic: motion_detection
-  action:
-  - service: notify.notify
+  - service: script.notify_camera
     data:
-      message: Camera 2 motion detection (HiKam S2)
-  - service: script.turn_on
-    entity_id: script.notify_camera2
-- id: '7020'
-  alias: Notifica rilevazione movimento Camera 3
-  initial_state: 'on'
-  trigger:
-  - payload: camera3
-    platform: mqtt
-    topic: motion_detection
-  action:
-  - service: notify.notify
-    data:
-      message: Camera 3 motion detection (Xiaovv Q8)
-  - service: script.turn_on
-    entity_id: script.notify_camera3
+      entity_id: camera.pi_zero_w
 - id: '7020'
   alias: Notifica rilevazione movimento Camera 4
   initial_state: 'on'
@@ -154,8 +121,9 @@
   - service: notify.notify
     data:
       message: Camera 4 motion detection (m5cam)
-  - service: script.turn_on
-    entity_id: script.notify_camera4
+  - service: script.notify_camera
+    data:
+      entity_id: camera.m5cam
     
 - id: '9000'
   alias: 'Telegram start'
@@ -184,8 +152,9 @@
     event_data:
       command: '/cam1'
   action:
-  - service: script.turn_on
-    entity_id: script.notify_camera1
+  - service: script.notify_camera
+    data:
+      entity_id: camera.pi_zero_w
 - id: '10010'
   alias: 'Telegram camera2'
   initial_state: 'on'
@@ -195,8 +164,9 @@
     event_data:
       command: '/cam2'
   action:
-  - service: script.turn_on
-    entity_id: script.notify_camera2
+  - service: script.notify_camera
+    data:
+      entity_id: camera.hikam_s5
 - id: '10020'
   alias: 'Telegram camera3'
   initial_state: 'on'
@@ -206,8 +176,9 @@
     event_data:
       command: '/cam3'
   action:
-  - service: script.turn_on
-    entity_id: script.notify_camera3
+  - service: script.notify_camera
+    data:
+      entity_id: camera.xiaovv_q8
 - id: '10030'
   alias: 'Telegram camera4'
   initial_state: 'on'
@@ -217,8 +188,9 @@
     event_data:
       command: '/cam4'
   action:
-  - service: script.turn_on
-    entity_id: script.notify_camera4
+  - service: script.notify_camera
+    data:
+      entity_id: camera.m5cam
 - id: '10040'
   alias: 'Telegram camera5'
   initial_state: 'on'
@@ -228,8 +200,9 @@
     event_data:
       command: '/cam5'
   action:
-  - service: script.turn_on
-    entity_id: script.notify_camera5
+  - service: script.notify_camera
+    data:
+      entity_id: camera.m5cameraf
 
 - id: '10100'
   alias: 'Telegram lights OFF'
@@ -260,41 +233,13 @@
   - platform: event
     event_type: telegram_callback
     event_data:
-      data: '/toggle_camera1_motion_detection'
+      data: '/toggle_camera.pi_zero_w_motion_detection'
   action:
   - service: switch.toggle
     entity_id: switch.camera_1_motion_detection
   - service: notify.notify
     data_template:
       message: '{{ states.switch.camera_1_motion_detection.state }}'
-- id: '11010'
-  alias: 'Toggle camera2 motion detection'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_callback
-    event_data:
-      data: '/toggle_camera2_motion_detection'
-  action:
-  - service: switch.toggle
-    entity_id: switch.camera_2_motion_detection
-  - service: notify.notify
-    data_template:
-      message: '{{ states.switch.camera_2_motion_detection.state }}'
-- id: '11020'
-  alias: 'Toggle camera3 motion detection'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_callback
-    event_data:
-      data: '/toggle_camera3_motion_detection'
-  action:
-  - service: switch.toggle
-    entity_id: switch.camera_3_motion_detection
-  - service: notify.notify
-    data_template:
-      message: '{{ states.switch.camera_3_motion_detection.state }}'
 - id: '11030'
   alias: 'Toggle camera4 motion detection'
   initial_state: 'on'
@@ -302,7 +247,7 @@
   - platform: event
     event_type: telegram_callback
     event_data:
-      data: '/toggle_camera4_motion_detection'
+      data: '/toggle_camera.m5cam_motion_detection'
   action:
   - service: input_boolean.toggle
     entity_id: input_boolean.camera_4_motion_detection
