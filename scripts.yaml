@@ -1,5 +1,18 @@
+notify_camera_n:
+  alias: Notifica Camera n
+  sequence:
+  - service: script.notify_camera
+    data_template:
+      entity_id: >
+        {% if   camera_number | int == 1 %} camera.pi_zero_w
+        {% elif camera_number | int == 2 %} camera.hikam_s5
+        {% elif camera_number | int == 3 %} camera.xiaovv_q8
+        {% elif camera_number | int == 4 %} camera.m5cam
+        {% elif camera_number | int == 5 %} camera.m5cameraf
+        {% endif %}
+
 notify_camera:
-  alias: Notifica Camera
+  alias: Notifica Camera per entity_id
   sequence:
   - service: camera.snapshot
     data_template:
@@ -8,7 +21,7 @@ notify_camera:
   - delay: "00:00:03"
   - service: notify.notify
     data_template:
-      message: "."
+      message: ""
       data:
         photo:
         - file: "/tmp/snapshot_{{ entity_id }}.jpg"
