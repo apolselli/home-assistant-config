@@ -139,70 +139,22 @@
       message: 'commands'
       data:
         keyboard:
-          - '/cam1, /cam2, /cam3, /cam4, /cam5'
+          - '/cam 1, /cam 2, /cam 3, /cam 4, /cam 5'
           - '/lights_off, /lights_on'
           - '/restart'
-
+          
 - id: '10000'
-  alias: 'Telegram camera1'
+  alias: 'Telegram camera'
   initial_state: 'on'
   trigger:
   - platform: event
     event_type: telegram_command
     event_data:
-      command: '/cam1'
+      command: '/cam'
   action:
-  - service: script.notify_camera
-    data:
-      entity_id: camera.pi_zero_w
-- id: '10010'
-  alias: 'Telegram camera2'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_command
-    event_data:
-      command: '/cam2'
-  action:
-  - service: script.notify_camera
-    data:
-      entity_id: camera.hikam_s5
-- id: '10020'
-  alias: 'Telegram camera3'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_command
-    event_data:
-      command: '/cam3'
-  action:
-  - service: script.notify_camera
-    data:
-      entity_id: camera.xiaovv_q8
-- id: '10030'
-  alias: 'Telegram camera4'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_command
-    event_data:
-      command: '/cam4'
-  action:
-  - service: script.notify_camera
-    data:
-      entity_id: camera.m5cam
-- id: '10040'
-  alias: 'Telegram camera5'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_command
-    event_data:
-      command: '/cam5'
-  action:
-  - service: script.notify_camera
-    data:
-      entity_id: camera.m5cameraf
+  - service: script.notify_camera_n
+    data_template:
+      camera_number: "{{ trigger.event.data.args[0] }}"
 
 - id: '10100'
   alias: 'Telegram lights OFF'
