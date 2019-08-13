@@ -1,86 +1,16 @@
-#tv_off:
-#  alias: Spegni TV
-#  sequence:
-#  - service: remote.send_command
-#    data_template:
-#      entity_id: remote.harmony_hub
-#      device: '58141348'
-#      command: ['PowerOff']
-
-#tv_on:
-#  alias: Accendi TV
-#  sequence:
-#  - service: remote.send_command
-#    data_template:
-#      entity_id: remote.harmony_hub
-#      device: '58141348'
-#      command: ['PowerOn']
-
-notify_camera1:
-  alias: Notifica Camera 1
-  sequence:
-  - service: notify.notify
-    data:
-      message: Camera 1
-      data:
-        photo:
-        - url: http://localhost:8765/picture/1/current/
-          caption: Camera 1
-          inline_keyboard: 'Toggle motion detection:/toggle_camera1_motion_detection'
-
-notify_camera2:
-  alias: Notifica Camera 2
-  sequence:
-  - service: notify.notify
-    data:
-      message: Camera 2
-      data:
-        photo:
-        - url: http://localhost:8765/picture/2/current/
-          caption: Camera 2
-          inline_keyboard: 'Toggle motion detection:/toggle_camera2_motion_detection'
-
-notify_camera3:
-  alias: Notifica Camera 3
-  sequence:
-  - service: notify.notify
-    data:
-      message: Camera 3
-      data:
-        photo:
-        - url: http://localhost:8765/picture/3/current/
-          caption: Camera 3
-          inline_keyboard: 'Toggle motion detection:/toggle_camera3_motion_detection'
-
-notify_camera4:
-  alias: Notifica Camera 4
+notify_camera:
+  alias: Notifica Camera
   sequence:
   - service: camera.snapshot
-    data:
-      entity_id: camera.m5cam
-      filename: '/tmp/m5cam_snapshot.jpg'
-  - delay: '00:00:02'
+    data_template:
+      entity_id: "{{ entity_id }}"
+      filename: "/tmp/snapshot_{{ entity_id }}.jpg"
+  - delay: "00:00:03"
   - service: notify.notify
-    data:
-      message: Camera 4
+    data_template:
+      message: "."
       data:
         photo:
-        - file: /tmp/m5cam_snapshot.jpg
-          caption: Camera 4
-          inline_keyboard: 'Toggle motion detection:/toggle_camera4_motion_detection'
-
-notify_camera5:
-  alias: Notifica Camera 5
-  sequence:
-  - service: camera.snapshot
-    data:
-      entity_id: camera.m5cameraf
-      filename: '/tmp/m5cameraf_snapshot.jpg'
-  - delay: '00:00:02'
-  - service: notify.notify
-    data:
-      message: Camera 5
-      data:
-        photo:
-        - file: /tmp/m5cameraf_snapshot.jpg
-          caption: Camera 5
+        - file: "/tmp/snapshot_{{ entity_id }}.jpg"
+          caption: "{{ state_attr(entity_id,'friendly_name') }}"
+          inline_keyboard: 'Toggle motion detection:/toggle_{{ entity_id }}_motion_detection'
