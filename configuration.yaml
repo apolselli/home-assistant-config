@@ -17,28 +17,21 @@ homeassistant:
     - /tmp                  # for camera snapshots
   packages: !include_dir_named packages
 
-# Enables the frontend
 frontend:
 
-# Enables configuration UI
 config:
 
 system_health:
 
-#map:
+map:
 
 http:
-  
-# Discover some devices automatically
-discovery:
-  ignore:
-    - sonos
-    - samsung_tv
-    - harmony
-    - deconz
-    - roku
-#  enable:
-#    - homekit
+
+history:
+
+logbook:
+
+person:
 
 ssdp:
 
@@ -120,18 +113,18 @@ switch:
         command_state: "/usr/bin/curl http://192.168.1.24:7999/1/detection/status"
         value_template: '{{ "ACTIVE" in value }}'
         friendly_name: Pi Zero W Motion Detection
-      camera_2_motion_detection:
-        command_on: "/usr/bin/curl http://localhost:7999/1/detection/start"
-        command_off: "/usr/bin/curl http://localhost:7999/1/detection/pause"
-        command_state: "/usr/bin/curl http://localhost:7999/1/detection/status"
-        value_template: '{{ "ACTIVE" in value }}'
-        friendly_name: HiKam S5 Motion Detection
-      camera_3_motion_detection:
-        command_on: "/usr/bin/curl http://localhost:7999/2/detection/start"
-        command_off: "/usr/bin/curl http://localhost:7999/2/detection/pause"
-        command_state: "/usr/bin/curl http://localhost:7999/2/detection/status"
-        value_template: '{{ "ACTIVE" in value }}'
-        friendly_name: Xiaovv Q8 Motion Detection
+#      camera_2_motion_detection:
+#        command_on: "/usr/bin/curl http://localhost:7999/1/detection/start"
+#        command_off: "/usr/bin/curl http://localhost:7999/1/detection/pause"
+#        command_state: "/usr/bin/curl http://localhost:7999/1/detection/status"
+#        value_template: '{{ "ACTIVE" in value }}'
+#        friendly_name: HiKam S5 Motion Detection
+#      camera_3_motion_detection:
+#        command_on: "/usr/bin/curl http://localhost:7999/2/detection/start"
+#        command_off: "/usr/bin/curl http://localhost:7999/2/detection/pause"
+#        command_state: "/usr/bin/curl http://localhost:7999/2/detection/status"
+#        value_template: '{{ "ACTIVE" in value }}'
+#        friendly_name: Xiaovv Q8 Motion Detection
 
 input_boolean:
   camera_4_motion_detection:
@@ -160,14 +153,20 @@ camera:
     name: Pi Zero W
     mjpeg_url: http://192.168.1.24:8081
     still_image_url: http://192.168.1.24:8765/picture/1/current/
-  - platform: mjpeg     # camera2 setup with motion
-    name: HiKam S5
-    mjpeg_url: http://localhost:8082
-    still_image_url: http://localhost:8765/picture/2/current/
-  - platform: mjpeg     # camera3 setup with motion
+#  - platform: mjpeg     # camera2 setup with motion
+#    name: HiKam S5
+#    mjpeg_url: http://localhost:8082
+#    still_image_url: http://localhost:8765/picture/2/current/
+#  - platform: mjpeg     # camera3 setup with motion
+#    name: Xiaovv Q8
+#    mjpeg_url: http://localhost:8083
+#    still_image_url: http://localhost:8765/picture/3/current/
+  - platform: ffmpeg
     name: Xiaovv Q8
-    mjpeg_url: http://localhost:8083
-    still_image_url: http://localhost:8765/picture/3/current/
+    input: rtsp://192.168.1.54/live/ch00_1      # 1980x1080
+  - platform: ffmpeg
+    name: HiKam S5
+    input: rtsp://192.168.1.173/onvif1          # 1280x720
 
 #hue:
 #  bridges:
@@ -220,6 +219,8 @@ recorder:
       - weather
       - sensor
   include:
+    domains:
+      - person
     entities:
       - sensor.home_assistant_v2_db
       - sensor.0x00158d00018534af_action
@@ -240,18 +241,6 @@ recorder:
       - sensor.m5stickc_env_hat_dht12_humidity
       - sensor.m5stickc_env_hat_bmp280_temperature
       - sensor.m5stickc_env_hat_bmp280_pressure
-  
-# Enables support for tracking state changes over time
-history:
-
-# View all events in a logbook
-logbook:
-
-binary_sensor:
-  - platform: ping
-    host: 192.168.1.254
-    count: 2
-    scan_interval: 60
 
 telegram_bot:
   - platform: polling
