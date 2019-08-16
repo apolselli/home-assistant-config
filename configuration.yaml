@@ -98,36 +98,8 @@ sensor:
   - platform: rpi_power
     text_state: true
   
-#remote:
-#  - platform: harmony
-#    host: 192.168.1.214
-#    name: Harmony Hub
-#    activity: Guarda TV
-#
-switch:
-  - platform: command_line
-    switches:
-      camera_1_motion_detection: # zero.local
-        command_on: "/usr/bin/curl http://192.168.1.24:7999/1/detection/start"
-        command_off: "/usr/bin/curl http://192.168.1.24:7999/1/detection/pause"
-        command_state: "/usr/bin/curl http://192.168.1.24:7999/1/detection/status"
-        value_template: '{{ "ACTIVE" in value }}'
-        friendly_name: Pi Zero W Motion Detection
-#      camera_2_motion_detection:
-#        command_on: "/usr/bin/curl http://localhost:7999/1/detection/start"
-#        command_off: "/usr/bin/curl http://localhost:7999/1/detection/pause"
-#        command_state: "/usr/bin/curl http://localhost:7999/1/detection/status"
-#        value_template: '{{ "ACTIVE" in value }}'
-#        friendly_name: HiKam S5 Motion Detection
-#      camera_3_motion_detection:
-#        command_on: "/usr/bin/curl http://localhost:7999/2/detection/start"
-#        command_off: "/usr/bin/curl http://localhost:7999/2/detection/pause"
-#        command_state: "/usr/bin/curl http://localhost:7999/2/detection/status"
-#        value_template: '{{ "ACTIVE" in value }}'
-#        friendly_name: Xiaovv Q8 Motion Detection
-
 input_boolean:
-  camera_4_motion_detection:
+  m5cam_motion_detection:
     name: M5Cam Motion Detection
     initial: off
 
@@ -138,41 +110,14 @@ light:
     command_topic: shellies/shelly1-32C429/relay/0/command
     payload_on: "on"
     payload_off: "off"
-  - name: "Cucina Tavolo Lampadario"
-    platform: mqtt
-    state_topic: cucina-tavolo-lampadario/relay/0
-    command_topic: cucina-tavolo-lampadario/relay/0/set
-    payload_on: 1
-    payload_off: 0
-    availability_topic: cucina-tavolo-lampadario/status
-    payload_available: 1
-    payload_not_available: 0
 
 camera:
-  - platform: mjpeg     # camera1 setup with motion
-    name: Pi Zero W
-    mjpeg_url: http://192.168.1.24:8081
-    still_image_url: http://192.168.1.24:8765/picture/1/current/
-#  - platform: mjpeg     # camera2 setup with motion
-#    name: HiKam S5
-#    mjpeg_url: http://localhost:8082
-#    still_image_url: http://localhost:8765/picture/2/current/
-#  - platform: mjpeg     # camera3 setup with motion
-#    name: Xiaovv Q8
-#    mjpeg_url: http://localhost:8083
-#    still_image_url: http://localhost:8765/picture/3/current/
   - platform: ffmpeg
     name: Xiaovv Q8
     input: rtsp://192.168.1.54/live/ch00_1      # 1980x1080
   - platform: ffmpeg
     name: HiKam S5
-    input: rtsp://192.168.1.173/onvif1          # 1280x720
-
-#hue:
-#  bridges:
-#    - host: 192.168.1.85  
-#      allow_unreachable: false
-#      allow_hue_groups: false
+    input: rtsp://192.168.1.173/onvif1         # 1280x720
 
 tado:
   username: !secret tado_username
@@ -186,7 +131,6 @@ device_tracker:
     home_id: !secret tado_home_id
 
 zone:
-  # This will override the default home zone
   - name: Home
     latitude: !secret latitude
     longitude: !secret longitude
