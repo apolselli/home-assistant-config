@@ -35,10 +35,8 @@
   - service: notify.notify
     data_template:
       message: 'Attivo motion detection'
-  - service: switch.turn_on
-    entity_id: switch.camera_1_motion_detection
   - service: input_boolean.turn_on
-    entity_id: input_boolean.camera_4_motion_detection
+    entity_id: input_boolean.m5cam_motion_detection
   - service: switch.turn_on
     entity_id: switch.smart_usb_relay_2
 
@@ -85,29 +83,13 @@
   - service: notify.notify
     data_template:
       message: 'Disattivo motion detection'
-  - service: switch.turn_off
-    entity_id: switch.camera_1_motion_detection
   - service: input_boolean.turn_off
-    entity_id: input_boolean.camera_4_motion_detection
+    entity_id: input_boolean.m5cam_motion_detection
   - service: switch.turn_off
     entity_id: switch.smart_usb_relay_2
 
-- id: '7000'
-  alias: Notifica rilevazione movimento Camera 1
-  initial_state: 'on'
-  trigger:
-  - payload: camera1
-    platform: mqtt
-    topic: motion_detection
-  action:
-  - service: notify.notify
-    data:
-      message: Camera 1 motion detection (Pi Zero W)
-  - service: script.notify_camera
-    data:
-      entity_id: camera.pi_zero_w
 - id: '7020'
-  alias: Notifica rilevazione movimento Camera 4
+  alias: Notifica rilevazione movimento m5cam
   initial_state: 'on'
   trigger:
   - platform: state
@@ -115,12 +97,12 @@
     to: 'on'
   condition:
   - condition: state
-    entity_id: input_boolean.camera_4_motion_detection
+    entity_id: input_boolean.m5cam_motion_detection
     state: 'on'
   action:
   - service: notify.notify
     data:
-      message: Camera 4 motion detection (m5cam)
+      message: Motion detection
   - service: script.notify_camera
     data:
       entity_id: camera.m5cam
@@ -139,7 +121,7 @@
       message: 'commands'
       data:
         keyboard:
-          - '/cam 1, /cam 2, /cam 3, /cam 4, /cam 5'
+          - '/cam 1, /cam 2, /cam 3, /cam 4'
           - '/lights_off, /lights_on'
           - '/restart'
           
@@ -178,22 +160,8 @@
   action:
   - service: light.turn_on
     entity_id: group.all_lights
-- id: '11000'
-  alias: 'Toggle camera1 motion detection'
-  initial_state: 'on'
-  trigger:
-  - platform: event
-    event_type: telegram_callback
-    event_data:
-      data: '/toggle_camera.pi_zero_w_motion_detection'
-  action:
-  - service: switch.toggle
-    entity_id: switch.camera_1_motion_detection
-  - service: notify.notify
-    data_template:
-      message: '{{ states.switch.camera_1_motion_detection.state }}'
 - id: '11030'
-  alias: 'Toggle camera4 motion detection'
+  alias: 'Toggle m5cam motion detection'
   initial_state: 'on'
   trigger:
   - platform: event
@@ -202,10 +170,10 @@
       data: '/toggle_camera.m5cam_motion_detection'
   action:
   - service: input_boolean.toggle
-    entity_id: input_boolean.camera_4_motion_detection
+    entity_id: input_boolean.m5cam_motion_detection
   - service: notify.notify
     data_template:
-      message: '{{ states.input_boolean.camera_4_motion_detection.state }}'
+      message: '{{ states.input_boolean.m5cam_motion_detection.state }}'
 - id: '12000'
   alias: 'Telegram restart home assistant'
   initial_state: 'on'
