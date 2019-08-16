@@ -4,11 +4,10 @@ notify_camera_n:
   - service: script.notify_camera
     data_template:
       entity_id: >
-        {% if   camera_number | int == 1 %} camera.pi_zero_w
+        {% if   camera_number | int == 1 %} camera.m5cameraf
         {% elif camera_number | int == 2 %} camera.hikam_s5
         {% elif camera_number | int == 3 %} camera.xiaovv_q8
         {% elif camera_number | int == 4 %} camera.m5cam
-        {% elif camera_number | int == 5 %} camera.m5cameraf
         {% endif %}
 
 notify_camera:
@@ -18,7 +17,7 @@ notify_camera:
     data_template:
       entity_id: "{{ entity_id }}"
       filename: "/tmp/snapshot_{{ entity_id }}.jpg"
-  - delay: "00:00:03"
+  - delay: "00:00:02"
   - service: notify.notify
     data_template:
       message: ""
