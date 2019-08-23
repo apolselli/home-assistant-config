@@ -39,6 +39,12 @@ binary_sensor:
       number: GPIO36
     name: ${upper_devicename} PIR
     device_class: motion
+    on_press:
+      then:
+        - switch.turn_on: led1
+    on_release:
+      then:
+        - switch.turn_off: led1
 
 sensor:
   - platform: wifi_signal
