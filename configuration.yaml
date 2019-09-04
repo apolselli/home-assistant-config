@@ -15,6 +15,7 @@ homeassistant:
   whitelist_external_dirs:
     - /config               # for filesize sensor
     - /tmp                  # for camera snapshots
+    - /dev                  # for camera snapshots
   packages: !include_dir_named packages
 
 frontend:
@@ -62,8 +63,9 @@ sensor:
   - platform: fritzbox_netmonitor
     host: 192.168.1.254
   - platform: glances
+    host: 127.0.0.1
+    port: 61209
     version: 3
-    host: localhost
     resources:
       - 'disk_use_percent'
       - 'cpu_temp'
@@ -97,14 +99,17 @@ sensor:
       - /config/home-assistant_v2.db
   - platform: rpi_power
     text_state: true
-  
+
 input_boolean:
   m5cam_motion_detection:
     name: M5Cam Motion Detection
     initial: off
+  soggiorno_motion_detection:
+    name: Soggiorno Motion Detection
+    initial: off
 
 light:
-  - name: "Soggiorno Lampadario"
+  - name: "Lampadario Soggiorno"
     platform: mqtt
     state_topic: shellies/shelly1-32C429/relay/0
     command_topic: shellies/shelly1-32C429/relay/0/command
@@ -136,26 +141,9 @@ zone:
     longitude: !secret longitude
     radius: 50
 
-smartir:
-
-media_player:
-  - platform: smartir
-    name: LG smartir M5StickC PIR Hat
-    device_code: 1001
-    controller_data: m5stickc_pir/transmit_lg
-  - platform: smartir
-    name: LG smartir M5CameraF
-    device_code: 1001
-    controller_data: m5cameraf/transmit_lg
-  - platform: webostv
-    host: 192.168.1.207
-    turn_on_action:
-    - service: switch.turn_on
-      entity_id: switch.m5stickc_pir_hat_lg_tv_power_on_2
-
 recorder:
   purge_interval: 1
-  purge_keep_days: 3
+  purge_keep_days: 4
   exclude:
     domains:
       - camera
@@ -163,8 +151,6 @@ recorder:
       - weather
       - sensor
   include:
-    domains:
-      - person
     entities:
       - sensor.home_assistant_v2_db
       - sensor.0x00158d00018534af_action
