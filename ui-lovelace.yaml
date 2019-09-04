@@ -109,18 +109,28 @@ resources:
     url: /community_plugin/canvas-gauge-card/canvas-gauge-card.js
   - type: module
     url: /community_plugin/decluttering-card/decluttering-card.js
-  - type: js
+  - type: module
     url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
   - type: module
     url: /community_plugin/mini-media-player/mini-media-player.js
   - type: module
-    url: /community_plugin/simple-weather-card/simple-weather-card.js
+    url: /community_plugin/simple-weather-card/simple-weather-card-bundle.js
   - type: module
     url: /community_plugin/mini-graph-card/mini-graph-card.js
 title: Home Assistant
 views:
   - badges: []
     cards:
+      - entity: media_player.lg_webos_smart_tv
+        type: 'custom:mini-media-player'
+      - card:
+          show_header_toggle: false
+          title: Sky
+          type: glance
+        filter:
+          include:
+            - entity_id: '*sky*'
+        type: 'custom:monster-card'
       - entity: weather.casa
         name: ' '
         type: 'custom:simple-weather-card'
@@ -131,40 +141,46 @@ views:
           - sensor.camera_da_letto_temperature
         hour24: true
         show:
+          average: true
+          extrema: true
           fill: false
           icon: true
           labels: true
           name: true
         type: 'custom:mini-graph-card'
-      - entity: media_player.lg_webos_smart_tv
-        type: 'custom:mini-media-player'
       - cards:
-          - camera_image: camera.hikam_s5
-            entities:
-              - sensor.soggiorno_temperature
-              - sensor.soggiorno_humidity
-            title: Soggiorno
-            type: picture-glance
           - cards:
+              - camera_image: camera.m5cameraf
+                entities:
+                  - sensor.soggiorno_temperature
+                  - sensor.soggiorno_humidity
+                title: Camera
+                type: picture-glance
+              - camera_image: camera.hikam_s5
+                entities:
+                  - sensor.soggiorno_temperature
+                  - sensor.soggiorno_humidity
+                title: Soggiorno
+                type: picture-glance
+            type: horizontal-stack
+          - cards:
+              - camera_image: camera.xiaovv_q8
+                entities:
+                  - sensor.cameretta_temperature
+                title: Cameretta
+                type: picture-glance
               - camera_image: camera.m5cam
                 entities:
                   - sensor.soggiorno_temperature
                   - sensor.soggiorno_humidity
                 title: Soggiorno
                 type: picture-glance
-              - camera_image: camera.pi_zero_w
-                entities:
-                  - sensor.camera_da_letto_temperature
-                  - sensor.camera_da_letto_humidity
-                  - light.camera_lampadario
-                title: Camera
-                type: picture-glance
             type: horizontal-stack
         type: vertical-stack
       - entities:
           - entity: sensor.uptime
-          - entity: sensor.memory_free
-          - entity: sensor.processor_use
+          - entity: sensor.glances_cpu_used
+          - entity: sensor.glances_cpu_temp
           - entity: sensor.home_assistant_v2_db
           - entity: sensor.rpi_power_status
         title: Sistema
@@ -199,44 +215,14 @@ views:
     title: Home
   - badges: []
     cards:
-      - entity: media_player.lg_webos_smart_tv
-        type: media-control
       - card:
-          show_header_toggle: true
-          title: Luci
+          show_header_toggle: false
+          title: Person.*
           type: entities
         filter:
           include:
-            - entity_id: light.*
+            - entity_id: person.*
         type: 'custom:monster-card'
-      - card:
-          show_header_toggle: true
-          title: Interruttori
-          type: entities
-        filter:
-          exclude:
-            - entity_id: '*restart'
-            - entity_id: '*led'
-            - entity_id: '*motion_detection'
-          include:
-            - domain: switch
-        type: 'custom:monster-card'
-      - entities:
-          - entity: remote.harmony_hub
-        show_header_toggle: false
-        title: Telecomandi
-        type: entities
-      - entities:
-          - script.tv_off
-          - script.tv_on
-        show_header_toggle: false
-        theme: default
-        title: Script
-        type: entities
-    path: main
-    title: Casa
-  - badges: []
-    cards:
       - entities:
           - entity: group.people
           - entity: group.alex
@@ -269,18 +255,71 @@ views:
       - entities:
           - entity: binary_sensor.m5cam_pir
             secondary_info: last-changed
+          - entity: binary_sensor.m5stickc_pir_hat_pir
+            secondary_info: last-changed
         type: entities
     icon: 'mdi:account-multiple'
     path: people
     title: Persone
   - badges: []
     cards:
+      - entity: media_player.lg_webos_smart_tv
+        type: media-control
+      - card:
+          show_header_toggle: false
+          title: Sky
+          type: glance
+        filter:
+          include:
+            - entity_id: '*sky*'
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: true
+          title: Luci
+          type: entities
+        filter:
+          include:
+            - entity_id: light.*
+        type: 'custom:monster-card'
+      - card:
+          show_header_toggle: true
+          title: Interruttori
+          type: entities
+        filter:
+          exclude:
+            - entity_id: '*restart'
+            - entity_id: '*led'
+            - entity_id: '*motion_detection'
+          include:
+            - domain: switch
+        type: 'custom:monster-card'
+    path: main
+    title: Casa
+  - badges: []
+    cards:
+      - card:
+          show_header_toggle: false
+          title: Home Cinema
+          type: entities
+        filter:
+          include:
+            - entity_id: '*media_player*'
+            - entity_id: '*sky*'
+            - entity_id: '*tv*'
+            - entity_id: '*sky*'
+            - entity_id: '*la7*'
+            - entity_id: '*rai3*'
+        type: 'custom:monster-card'
+    icon: 'mdi:television'
+    panel: false
+    path: tv
+    title: TV
+  - badges: []
+    cards:
       - cards:
           - cards:
               - entities:
                   - sensor.met_temperature
-                  - sensor.m5stickc_env_hat_dht12_temperature
-                  - sensor.m5stickc_env_hat_bmp280_temperature
                 hour24: true
                 show:
                   fill: false
@@ -294,21 +333,7 @@ views:
                     type: 'custom:decluttering-card'
                     variables:
                       - entity: sensor.met_temperature
-                  - template: termometro
-                    type: 'custom:decluttering-card'
-                    variables:
-                      - entity: sensor.m5stickc_env_hat_bmp280_temperature
                 type: horizontal-stack
-            type: horizontal-stack
-          - cards:
-              - template: igrometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_dht12_humidity
-              - template: barometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_bmp280_pressure
             type: horizontal-stack
         title: ⛅ Outdoor
         type: 'custom:vertical-stack-in-card'
@@ -405,10 +430,24 @@ views:
           include:
             - domain: automation
         type: 'custom:monster-card'
+      - card:
+          title: Script
+          type: entities
+        filter:
+          include:
+            - domain: script
+        type: 'custom:monster-card'
     path: automation
     title: Automazioni
   - badges: []
     cards:
+      - camera_image: camera.hikam_s5
+        camera_view: live
+        entities:
+          - sensor.soggiorno_temperature
+          - sensor.soggiorno_humidity
+        title: Soggiorno
+        type: picture-glance
       - card:
           title: Motion Detection
           type: entities
@@ -417,31 +456,11 @@ views:
             - entity_id: switch.*motion*
             - entity_id: input_boolean.*motion*
         type: 'custom:monster-card'
-      - camera_image: camera.hikam_s5
-        camera_view: live
-        entities:
-          - sensor.soggiorno_temperature
-          - sensor.soggiorno_humidity
-          - light.soggiorno_lampada
-          - switch.camera_2_motion_detection
-        title: Soggiorno
-        type: picture-glance
-      - camera_image: camera.pi_zero_w
-        camera_view: live
-        entities:
-          - sensor.camera_da_letto_temperature
-          - sensor.camera_da_letto_humidity
-          - light.camera_lampadario
-          - switch.camera_1_motion_detection
-        title: Camera da letto
-        type: picture-glance
       - camera_image: camera.m5cam
         camera_view: live
         entities:
           - sensor.soggiorno_temperature
           - sensor.soggiorno_humidity
-          - light.soggiorno_lampada
-          - switch.camera_2_motion_detection
         title: Soggiorno
         type: picture-glance
       - card:
@@ -459,6 +478,12 @@ views:
           - sensor.soggiorno_humidity
         title: M5CameraF
         type: picture-glance
+      - camera_image: camera.xiaovv_q8
+        camera_view: live
+        entities:
+          - sensor.cameretta_temperature
+        title: Cameretta
+        type: picture-glance
     icon: 'mdi:cctv'
     theme: default
     title: Videosorveglianza
@@ -472,58 +497,6 @@ views:
           include:
             - entity_id: '*m5cameraf*'
         type: 'custom:monster-card'
-      - cards:
-          - cards:
-              - template: igrometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_dht12_humidity
-                  - name: Umidità
-              - template: barometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_bmp280_pressure
-                  - name: Pressione
-            type: horizontal-stack
-          - cards:
-              - template: termometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_bmp280_temperature
-                  - name: Temperatura (BMP280)
-                  - size: 140
-                  - height: 300
-              - template: termometro
-                type: 'custom:decluttering-card'
-                variables:
-                  - entity: sensor.m5stickc_env_hat_dht12_temperature
-                  - name: Temperatura (DHT12)
-                  - size: 140
-                  - height: 300
-            type: horizontal-stack
-          - entities:
-              - sensor.m5stickc_env_hat_bmp280_temperature
-              - sensor.m5stickc_env_hat_dht12_temperature
-              - entity: sensor.m5stickc_env_hat_dht12_humidity
-                y_axis: secondary
-            hour24: true
-            show:
-              fill: false
-              icon: true
-              labels: true
-              name: true
-              state: true
-            type: 'custom:mini-graph-card'
-        title: M5StickC ENV Unit
-        type: 'custom:vertical-stack-in-card'
-      - card:
-          show_header_toggle: false
-          title: M5StickC PIR Hat
-          type: entities
-        filter:
-          include:
-            - entity_id: '*m5stickc_pir*'
-        type: 'custom:monster-card'
       - card:
           show_header_toggle: false
           title: M5Cam
@@ -535,11 +508,11 @@ views:
         type: 'custom:monster-card'
       - card:
           show_header_toggle: false
-          title: M5StickC ENV Hat
+          title: M5StickC PIR Hat
           type: entities
         filter:
           include:
-            - entity_id: '*m5stickc_env*'
+            - entity_id: '*m5stickc_pir*'
         type: 'custom:monster-card'
     icon: 'mdi:wrench'
     title: Lab
@@ -547,21 +520,33 @@ views:
     cards:
       - entities:
           - entity: sensor.uptime
-          - entity: sensor.memory_free
-          - entity: sensor.processor_use
+          - entity: sensor.glances_ram_free
+          - entity: sensor.glances_cpu_used
+          - entity: sensor.glances_cpu_temp
           - entity: sensor.rpi_power_status
         title: System
         type: glance
       - entities:
-          - entity: binary_sensor.ping_binary_sensor
           - entity: sensor.fritz_netmonitor
         title: Network
         type: glance
       - entities:
-          - entity: sensor.disk_free
-          - entity: sensor.disk_use_percent
+          - entity: sensor.glances_disk_free
+          - entity: sensor.glances_disk_used_percent
           - entity: sensor.home_assistant_v2_db
         title: Storage
         type: glance
     icon: 'mdi:server-network'
     title: System
+  - badges: []
+    cards:
+      - card:
+          show_header_toggle: false
+          title: Zigbee2mqtt
+          type: entities
+        filter:
+          include:
+            - entity_id: '*zigbee*'
+        type: 'custom:monster-card'
+    icon: 'mdi:zigbee'
+    title: Zigbee
