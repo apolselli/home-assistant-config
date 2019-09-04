@@ -16,13 +16,13 @@ notify_camera:
   - service: camera.snapshot
     data_template:
       entity_id: "{{ entity_id }}"
-      filename: "/tmp/snapshot_{{ entity_id }}.jpg"
+      filename: "/dev/snapshot_{{ entity_id }}.jpg"
   - delay: "00:00:02"
   - service: notify.notify
     data_template:
       message: ""
       data:
         photo:
-        - file: "/tmp/snapshot_{{ entity_id }}.jpg"
+        - file: "/dev/snapshot_{{ entity_id }}.jpg"
           caption: "{{ state_attr(entity_id,'friendly_name') }}"
           inline_keyboard: 'Toggle motion detection:/toggle_{{ entity_id }}_motion_detection'
