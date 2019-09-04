@@ -8,6 +8,7 @@
   - service: notify.notify
     data:
       message: Hassio avviato con ip esterno {{ state_attr('sensor.fritz_netmonitor', 'external_ip') }}
+      
 - id: '2000'
   alias: Accendi lampada quando torna Alessandro
   initial_state: 'on'
@@ -21,7 +22,7 @@
     condition: sun
   action:
   - service: light.turn_on
-    entity_id: light.0x00158d00018571c3_light   # Soggiorno Lampada
+    entity_id: light.0x00158d00018571c3_light   # Lampada Soggiorno
 
 - id: '3000'
   alias: Accendi TVCC e attiva motion detection quando non rimane nessuno
@@ -37,6 +38,8 @@
       message: 'Attivo motion detection'
   - service: input_boolean.turn_on
     entity_id: input_boolean.m5cam_motion_detection
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.soggiorno_motion_detection
   - service: switch.turn_on
     entity_id: switch.smart_usb_relay_2
 
@@ -55,6 +58,7 @@
   - service: notify.notify
     data_template:
       message: 'Lights ON with everyone outside!'
+      
 - id: '3510'
   alias: 'Notifica luci accese quando non rimane nessuno'
   initial_state: 'on'
@@ -71,6 +75,7 @@
   - service: notify.notify
     data_template:
       message: 'You left with lights ON!'
+      
 - id: '4000'
   alias: Spegni TVCC e motion detection quando rientra qualcuno
   initial_state: 'on'
@@ -85,6 +90,8 @@
       message: 'Disattivo motion detection'
   - service: input_boolean.turn_off
     entity_id: input_boolean.m5cam_motion_detection
+  - service: input_boolean.turn_off
+    entity_id: input_boolean.soggiorno_motion_detection
   - service: switch.turn_off
     entity_id: switch.smart_usb_relay_2
 
@@ -102,10 +109,29 @@
   action:
   - service: notify.notify
     data:
-      message: Motion detection
+      message: Motion detection (m5cam)
   - service: script.notify_camera
     data:
       entity_id: camera.m5cam
+    
+- id: '7030'
+  alias: Notifica rilevazione movimento soggiorno
+  initial_state: 'on'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.m5stickc_pir_hat_pir
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.soggiorno_motion_detection
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      message: Motion detection (soggiorno)
+  - service: script.notify_camera
+    data:
+      entity_id: camera.hikam_s5
     
 - id: '9000'
   alias: 'Telegram start'
@@ -149,6 +175,7 @@
   action:
   - service: light.turn_off
     entity_id: group.all_lights
+    
 - id: '10110'
   alias: 'Telegram lights ON'
   initial_state: 'on'
@@ -160,6 +187,7 @@
   action:
   - service: light.turn_on
     entity_id: group.all_lights
+    
 - id: '11030'
   alias: 'Toggle m5cam motion detection'
   initial_state: 'on'
@@ -174,6 +202,22 @@
   - service: notify.notify
     data_template:
       message: '{{ states.input_boolean.m5cam_motion_detection.state }}'
+
+- id: '11040'
+  alias: 'Toggle HiKam S5 (Soggiorno) motion detection'
+  initial_state: 'on'
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/toggle_camera.hikam_s5_motion_detection'
+  action:
+  - service: input_boolean.toggle
+    entity_id: input_boolean.soggiorno_motion_detection
+  - service: notify.notify
+    data_template:
+      message: '{{ states.input_boolean.soggiorno_motion_detection.state }}'
+
 - id: '12000'
   alias: 'Telegram restart home assistant'
   initial_state: 'on'
@@ -195,11 +239,12 @@
     to: 'on'
   condition:
     condition: state
-    entity_id: light.soggiorno_lampadario
+    entity_id: light.lampadario_soggiorno
     state: 'on'
   action:
     - service: light.turn_off
       entity_id: group.all_lights
+      
 - id: '30010'
   alias: "M5StickC accende lampada e lampadario"
   hide_entity: true
@@ -210,7 +255,7 @@
     to: 'on'
   condition:
     condition: state
-    entity_id: light.soggiorno_lampadario
+    entity_id: light.lampadario_soggiorno
     state: 'off'
   action:
     - service: light.turn_on
