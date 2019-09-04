@@ -1,0 +1,128 @@
+remote:
+  - platform: harmony
+    name: Soggiorno
+    host: 192.168.1.214
+
+smartir:
+
+media_player:
+  - platform: smartir
+    name: LG smartir M5StickC PIR Hat
+    device_code: 1001
+    controller_data: m5stickc_pir/transmit_lg
+  - platform: webostv
+    host: 192.168.1.207
+    turn_on_action:
+    - service: switch.turn_on
+      entity_id: switch.m5stickc_pir_hat_lg_tv_power_on
+
+sensor:
+  - platform: rest
+    resource: http://192.168.1.27:9006/as/system/information/
+    name: SkyQ
+    json_attributes:
+        - systemUptime
+        - activeStandby
+    value_template: "{{ value_json.systemUptime }}"
+    unit_of_measurement: 's'
+    scan_interval: 5
+
+binary_sensor:
+  - platform: template
+    sensors:
+      skyqpower:
+        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
+        friendly_name: SkyQ Power
+        device_class: moving
+
+switch:
+  - platform: template
+    switches:
+      tv:
+        friendly_name: TV
+        value_template: "{{ is_state_attr('media_player.lg_webos_smart_tv', 'source', 'HDMI1') }}"
+        turn_on:
+          - service: media_player.turn_on
+            data:
+              entity_id: media_player.lg_webos_smart_tv
+          - service: media_player.select_source
+            data:
+              entity_id: media_player.lg_webos_smart_tv
+              source: HDMI1
+        turn_off:
+        - service: media_player.turn_off
+          data:
+            entity_id: media_player.lg_webos_smart_tv
+      sky:
+        friendly_name: Sky
+        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
+        turn_on:
+          service: script.turn_on
+          data:
+            entity_id: script.sky_on
+        turn_off:
+          service: script.turn_on
+          data:
+            entity_id: script.sky_off
+
+script:
+  sky_on:
+    alias: Accendi Sky
+    sequence:
+      - condition: template
+        value_template: "{{ not is_state_attr('sensor.skyq', 'activeStandby', false) }}"
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - PowerToggle
+          device: Sky DVR
+  sky_off:
+    alias: Spegni Sky
+    sequence:
+      - condition: template
+        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - PowerToggle
+          device: Sky DVR
+  la7:
+    sequence:
+        - service: switch.turn_on
+          data:
+            entity_id: switch.sky
+        - service: switch.turn_on
+          data:
+            entity_id: switch.tv
+        - service: remote.send_command
+          data:
+            entity_id: remote.soggiorno
+            command:
+              - "Return"
+              - "5"
+              - "5"
+              - "0"
+              - "7"
+            device: Sky DVR
+            delay_secs: 0.6
+  rai3:
+    sequence:
+        - service: switch.turn_on
+          data:
+            entity_id: switch.tv
+        - service: switch.turn_on
+          data:
+            entity_id: switch.sky
+        - service: remote.send_command
+          data:
+            entity_id: remote.soggiorno
+            command:
+              - "Return"
+              - "5"
+              - "5"
+              - "0"
+              - "3"
+            device: Sky DVR
+            delay_secs: 0.6
