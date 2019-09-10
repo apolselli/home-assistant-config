@@ -88,41 +88,85 @@ script:
           command:
             - PowerToggle
           device: Sky DVR
+  tv_sky_off:
+    alias: Spegni Tv e Sky
+    sequence:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.sky
+      - service: switch.turn_off
+        data:
+          entity_id: switch.tv
+  tv_sky_on:
+    alias: Accendi Tv e Sky
+    sequence:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.sky
+      - service: switch.turn_on
+        data:
+          entity_id: switch.tv
   la7:
     sequence:
-        - service: switch.turn_on
-          data:
-            entity_id: switch.sky
-        - service: switch.turn_on
-          data:
-            entity_id: switch.tv
-        - service: remote.send_command
-          data:
-            entity_id: remote.soggiorno
-            command:
-              - "Return"
-              - "5"
-              - "5"
-              - "0"
-              - "7"
-            device: Sky DVR
-            delay_secs: 0.6
+      - service: script.turn_on
+        data:
+          entity_id: script.tv_sky_on
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - "Return"
+            - "5"
+            - "5"
+            - "0"
+            - "7"
+          device: Sky DVR
+          delay_secs: 0.5
+  rai1:
+    sequence:
+      - service: script.turn_on
+        data:
+          entity_id: script.tv_sky_on
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - "Return"
+            - "5"
+            - "5"
+            - "0"
+            - "1"
+          device: Sky DVR
+          delay_secs: 0.5
+  rai2:
+    sequence:
+      - service: script.turn_on
+        data:
+          entity_id: script.tv_sky_on
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - "Return"
+            - "5"
+            - "5"
+            - "0"
+            - "2"
+          device: Sky DVR
+          delay_secs: 0.5
   rai3:
     sequence:
-        - service: switch.turn_on
-          data:
-            entity_id: switch.tv
-        - service: switch.turn_on
-          data:
-            entity_id: switch.sky
-        - service: remote.send_command
-          data:
-            entity_id: remote.soggiorno
-            command:
-              - "Return"
-              - "5"
-              - "5"
-              - "0"
-              - "3"
-            device: Sky DVR
-            delay_secs: 0.6
+      - service: script.turn_on
+        data:
+          entity_id: script.tv_sky_on
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - "Return"
+            - "5"
+            - "5"
+            - "0"
+            - "3"
+          device: Sky DVR
+          delay_secs: 0.5
