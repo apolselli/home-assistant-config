@@ -1,3 +1,10 @@
+homeassistant:
+  customize:
+    media_player.lg_webos_smart_tv:
+      device_class: tv
+    media_player.universal_remote:
+      device_class: tv
+
 remote:
   - platform: harmony
     name: Soggiorno
@@ -5,16 +12,95 @@ remote:
 
 smartir:
 
+input_select:
+  elenco_canali:
+    name: Elenco canali
+    options:
+      - '1 Rai1'
+      - '2 Rai2'
+      - '3 Rai3'
+      - '7 La7'
+    initial: 7 La7
+    icon: mdi:television
+
+input_boolean:
+  stereo_state:
+  
 media_player:
-  - platform: smartir
-    name: LG smartir M5StickC PIR Hat
-    device_code: 1001
-    controller_data: m5stickc_pir/transmit_lg
+
   - platform: webostv
     host: 192.168.1.207
     turn_on_action:
-    - service: switch.turn_on
-      entity_id: switch.m5stickc_pir_hat_lg_tv_power_on
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - PowerOn
+          device: LG TV
+
+  - platform: universal
+    name: Universal Remote
+    children:
+      - media_player.lg_webos_smart_tv
+    commands:
+      turn_on:
+        service: media_player.turn_on
+        data:
+          entity_id: media_player.lg_webos_smart_tv
+      turn_off:
+        service: media_player.turn_off
+        data:
+          entity_id: media_player.lg_webos_smart_tv
+      volume_up:
+        service: media_player.volume_up
+        data:
+          entity_id: media_player.lg_webos_smart_tv
+      volume_down:
+        service: media_player.volume_down
+        data:
+          entity_id: media_player.lg_webos_smart_tv
+      volume_mute:
+        service: media_player.volume_mute
+        data:
+          entity_id: media_player.lg_webos_smart_tv
+      volume_set:
+        service: media_player.volume_set
+        data_template:
+          entity_id: media_player.lg_webos_smart_tv
+          volume_level: '{{ volume_level }}'
+      select_source:
+          service: script.turn_on
+          data_template:
+            entity_id: >
+              {% if   source == '1 Rai1' %}
+                script.rai1
+              {% elif source == '2 Rai2' %}
+                script.rai2
+              {% elif source == '3 Rai3' %}
+                script.rai3
+              {% elif source == '7 La7' %}
+                script.la7
+              {% else %} 
+                script.sky_off
+              {% endif %}
+    attributes:
+      is_volume_muted: media_player.lg_webos_smart_tv|is_volume_muted
+      volume_level: media_player.lg_webos_smart_tv|volume_level
+      source_list: input_select.elenco_canali|options
+
+  - platform: universal
+    name: Stereo
+    commands:
+      turn_on:
+        service: script.turn_on
+        data:
+          entity_id: script.turn_on_stereo
+      turn_off:
+        service: script.turn_on
+        data:
+          entity_id: script.turn_off_stereo
+    attributes:
+      state: input_boolean.stereo_state
 
 sensor:
   - platform: rest
@@ -164,4 +250,30 @@ script:
             - "3"
           device: Sky DVR
           delay_secs: 0.5
-          
+
+  turn_on_stereo:
+    alias: "Accendi Stereo"
+    sequence:
+      - service: input_boolean.turn_on
+        data:
+          entity_id: input_boolean.stereo_state
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - PowerOn
+          device: Pioneer Ricevitore AV
+
+  turn_off_stereo:
+    alias: "Spegni Stereo"
+    sequence:
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.stereo_state
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - PowerOff
+          device: Pioneer Ricevitore AV
+      
