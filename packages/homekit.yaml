@@ -5,13 +5,6 @@ homekit:
       - light
       - climate
       - media_player
-  entity_config:
-    media_player.lg_webos_smart_tv:
-      feature_list:
-        - feature: on_off
-        - feature: play_pause
-        - feature: play_stop
-        - feature: toggle_mute
 
 automation:
   - alias: 'Start HomeKit'
