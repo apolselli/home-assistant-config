@@ -1,0 +1,10 @@
+automation:
+  - alias: Delay Duck DNS
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      - delay: 00:01:00
+      - service: hassio.addon_restart
+        data:
+          addon: core_duckdns
