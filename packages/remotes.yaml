@@ -2,6 +2,8 @@ homeassistant:
   customize:
     media_player.lg_webos_smart_tv:
       device_class: tv
+    media_player.skyq_soggiorno:
+      device_class: tv
     media_player.universal_remote:
       device_class: tv
 
@@ -10,23 +12,24 @@ remote:
     name: Soggiorno
     host: 192.168.1.214
 
-smartir:
-
-input_select:
-  elenco_canali:
-    name: Elenco canali
-    options:
-      - '1 Rai1'
-      - '2 Rai2'
-      - '3 Rai3'
-      - '7 La7'
-    initial: 7 La7
-    icon: mdi:television
-
 input_boolean:
   stereo_state:
   
 media_player:
+
+  - platform: skyq
+    name: SkyQ Soggiorno
+    host: 192.168.1.27
+    room: soggiorno
+    config_directory: '/config/'
+    generate_switches_for_channels: false
+    sources:
+      SkyArte: '1,2,0'
+      SkyCinema1: '3,0,1'
+      Rai1: '5,5,0,1'
+      Rai2: '5,5,0,2'
+      Rai3: '5,5,0,3'
+      La7: '5,5,0,7'
 
   - platform: webostv
     host: 192.168.1.207
@@ -42,6 +45,7 @@ media_player:
     name: Universal Remote
     children:
       - media_player.lg_webos_smart_tv
+      - media_player.skyq_soggiorno
     commands:
       turn_on:
         service: media_player.turn_on
@@ -69,24 +73,14 @@ media_player:
           entity_id: media_player.lg_webos_smart_tv
           volume_level: '{{ volume_level }}'
       select_source:
-          service: script.turn_on
-          data_template:
-            entity_id: >
-              {% if   source == '1 Rai1' %}
-                script.rai1
-              {% elif source == '2 Rai2' %}
-                script.rai2
-              {% elif source == '3 Rai3' %}
-                script.rai3
-              {% elif source == '7 La7' %}
-                script.la7
-              {% else %} 
-                script.sky_off
-              {% endif %}
+        service: media_player.select_source
+        data_template:
+          entity_id: media_player.skyq_soggiorno
+          source: '{{ source }}'
     attributes:
       is_volume_muted: media_player.lg_webos_smart_tv|is_volume_muted
       volume_level: media_player.lg_webos_smart_tv|volume_level
-      source_list: input_select.elenco_canali|options
+      source_list: media_player.skyq_soggiorno|source_list
 
   - platform: universal
     name: Stereo
@@ -101,25 +95,6 @@ media_player:
           entity_id: script.turn_off_stereo
     attributes:
       state: input_boolean.stereo_state
-
-sensor:
-  - platform: rest
-    resource: http://192.168.1.27:9006/as/system/information/
-    name: SkyQ
-    json_attributes:
-        - systemUptime
-        - activeStandby
-    value_template: "{{ value_json.systemUptime }}"
-    unit_of_measurement: 's'
-    scan_interval: 5
-
-binary_sensor:
-  - platform: template
-    sensors:
-      skyqpower:
-        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
-        friendly_name: SkyQ Power
-        device_class: moving
 
 switch:
   - platform: template
@@ -136,120 +111,72 @@ switch:
               entity_id: media_player.lg_webos_smart_tv
               source: HDMI1
         turn_off:
-        - service: media_player.turn_off
-          data:
-            entity_id: media_player.lg_webos_smart_tv
-      sky:
-        friendly_name: Sky
-        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
-        turn_on:
-          service: script.turn_on
-          data:
-            entity_id: script.sky_on
-        turn_off:
-          service: script.turn_on
-          data:
-            entity_id: script.sky_off
+          - service: media_player.turn_off
+            data:
+              entity_id: media_player.lg_webos_smart_tv
 
 script:
-  sky_on:
-    alias: Accendi Sky
+
+  skyarte:
     sequence:
-      - condition: template
-        value_template: "{{ not is_state_attr('sensor.skyq', 'activeStandby', false) }}"
-      - service: remote.send_command
+      - service: switch.turn_on
         data:
-          entity_id: remote.soggiorno
-          command:
-            - PowerToggle
-          device: Sky DVR
-  sky_off:
-    alias: Spegni Sky
-    sequence:
-      - condition: template
-        value_template: "{{ is_state_attr('sensor.skyq', 'activeStandby', false) }}"
-      - service: remote.send_command
+          entity_id: switch.tv
+      - service: media_player.turn_on
         data:
-          entity_id: remote.soggiorno
-          command:
-            - PowerToggle
-          device: Sky DVR
+          entity_id: media_player.skyq_soggiorno
+      - service: media_player.select_source
+        data:
+          entity_id: media_player.skyq_soggiorno
+          source: SkyArte
   la7:
     sequence:
       - service: switch.turn_on
         data:
-          entity_id: switch.sky
-      - service: switch.turn_on
-        data:
           entity_id: switch.tv
-      - service: remote.send_command
+      - service: media_player.turn_on
         data:
-          entity_id: remote.soggiorno
-          command:
-            - "Return"
-            - "5"
-            - "5"
-            - "0"
-            - "7"
-          device: Sky DVR
-          delay_secs: 0.5
+          entity_id: media_player.skyq_soggiorno
+      - service: media_player.select_source
+        data:
+          entity_id: media_player.skyq_soggiorno
+          source: La7
   rai1:
     sequence:
       - service: switch.turn_on
         data:
           entity_id: switch.tv
-      - service: switch.turn_on
+      - service: media_player.turn_on
         data:
-          entity_id: switch.sky
-      - service: remote.send_command
+          entity_id: media_player.skyq_soggiorno
+      - service: media_player.select_source
         data:
-          entity_id: remote.soggiorno
-          command:
-            - "Return"
-            - "5"
-            - "5"
-            - "0"
-            - "1"
-          device: Sky DVR
-          delay_secs: 0.5
+          entity_id: media_player.skyq_soggiorno
+          source: Rai1
   rai2:
     sequence:
       - service: switch.turn_on
         data:
           entity_id: switch.tv
-      - service: switch.turn_on
+      - service: media_player.turn_on
         data:
-          entity_id: switch.sky
-      - service: remote.send_command
+          entity_id: media_player.skyq_soggiorno
+      - service: media_player.select_source
         data:
-          entity_id: remote.soggiorno
-          command:
-            - "Return"
-            - "5"
-            - "5"
-            - "0"
-            - "2"
-          device: Sky DVR
-          delay_secs: 0.5
+          entity_id: media_player.skyq_soggiorno
+          source: Rai2
   rai3:
     sequence:
       - service: switch.turn_on
         data:
           entity_id: switch.tv
-      - service: switch.turn_on
+      - service: media_player.turn_on
         data:
-          entity_id: switch.sky
-      - service: remote.send_command
+          entity_id: media_player.skyq_soggiorno
+      - service: media_player.select_source
         data:
-          entity_id: remote.soggiorno
-          command:
-            - "Return"
-            - "5"
-            - "5"
-            - "0"
-            - "3"
-          device: Sky DVR
-          delay_secs: 0.5
+          entity_id: media_player.skyq_soggiorno
+          source: Rai3
 
   turn_on_stereo:
     alias: "Accendi Stereo"
@@ -276,4 +203,3 @@ script:
           command:
             - PowerOff
           device: Pioneer Ricevitore AV
-      
