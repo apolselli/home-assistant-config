@@ -67,7 +67,7 @@ binary_sensor:
         
   - platform: template
     id: timed_light
-    lambda: !lambda |-
+    lambda: |-
       static int fresh_boot = 1;
       if (fresh_boot) {
         fresh_boot = 0;
