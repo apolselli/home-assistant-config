@@ -76,7 +76,7 @@ binary_sensor:
         return id(motion1).state;
       }
     filters:
-      - delayed_off: 5s
+      - delayed_off: 3s
     on_release:
       then:
         - switch.turn_off: led1
@@ -86,6 +86,10 @@ sensor:
     name: ${upper_devicename} WiFi Signal
   - platform: uptime
     name: ${upper_devicename} Uptime
+
+text_sensor:
+  - platform: version
+    name: ${upper_devicename} ESPHome Version
 
 #interval:
 #  - interval: 12h
