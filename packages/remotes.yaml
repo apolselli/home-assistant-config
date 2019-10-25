@@ -26,6 +26,7 @@ media_player:
     sources:
       SkyArte: '1,2,0'
       SkyCinema1: '3,0,1'
+      SkyCinema2: '3,0,2'
       Rai1: '5,5,0,1'
       Rai2: '5,5,0,2'
       Rai3: '5,5,0,3'
