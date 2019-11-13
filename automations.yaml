@@ -9,21 +9,6 @@
     data:
       message: Hassio avviato con ip esterno {{ state_attr('sensor.fritz_netmonitor', 'external_ip') }}
       
-- id: '2000'
-  alias: Accendi lampada quando torna Alessandro
-  initial_state: 'on'
-  trigger:
-  - platform: state
-    entity_id: group.alex
-    from: 'not_home'
-    to: 'home'
-  condition:
-  - after: sunset
-    condition: sun
-  action:
-  - service: light.turn_on
-    entity_id: light.0x00158d00018571c3_light   # Lampada Soggiorno
-
 - id: '3000'
   alias: Accendi TVCC e attiva motion detection quando non rimane nessuno
   initial_state: 'on'
