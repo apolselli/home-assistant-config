@@ -103,24 +103,24 @@ decluttering_templates:
       - height: 300
       - name: Termometro
 resources:
-  - type: module
-    url: /community_plugin/monster-card/monster-card.js
-  - type: module
-    url: /community_plugin/canvas-gauge-card/canvas-gauge-card.js
-  - type: module
-    url: /community_plugin/decluttering-card/decluttering-card.js
-  - type: module
-    url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
-  - type: module
-    url: /community_plugin/mini-media-player/mini-media-player.js
-  - type: module
-    url: /community_plugin/simple-weather-card/simple-weather-card-bundle.js
-  - type: module
-    url: /community_plugin/mini-graph-card/mini-graph-card.js
-  - type: module
-    url: /community_plugin/search-card/search-card.js
-  - type: module
-    url: /community_plugin/card-tools/card-tools.js
+  - url: /community_plugin/lovelace-auto-entities/auto-entities.js
+    type: module
+  - url: /community_plugin/canvas-gauge-card/canvas-gauge-card.js
+    type: module
+  - url: /community_plugin/decluttering-card/decluttering-card.js
+    type: module
+  - url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
+    type: module
+  - url: /community_plugin/mini-graph-card/mini-graph-card-bundle.js
+    type: module
+  - url: /community_plugin/simple-weather-card/simple-weather-card-bundle.js
+    type: module
+  - url: /community_plugin/mini-media-player/mini-media-player-bundle.js
+    type: module
+  - url: /community_plugin/search-card/search-card.js
+    type: module
+  - url: /community_plugin/card-tools/card-tools.js
+    type: module
 title: Home Assistant
 views:
   - badges: []
@@ -131,14 +131,6 @@ views:
         type: 'custom:mini-media-player'
       - entity: media_player.echo_dot_di_alessandro
         type: 'custom:mini-media-player'
-      - card:
-          show_header_toggle: false
-          title: Sky
-          type: glance
-        filter:
-          include:
-            - entity_id: '*sky*'
-        type: 'custom:monster-card'
       - entity: weather.casa
         name: ' '
         type: 'custom:simple-weather-card'
@@ -156,35 +148,6 @@ views:
           labels: true
           name: true
         type: 'custom:mini-graph-card'
-      - cards:
-          - cards:
-              - camera_image: camera.m5cameraf
-                entities:
-                  - sensor.soggiorno_temperature
-                  - sensor.soggiorno_humidity
-                title: Camera
-                type: picture-glance
-              - camera_image: camera.hikam_s5
-                entities:
-                  - sensor.soggiorno_temperature
-                  - sensor.soggiorno_humidity
-                title: Soggiorno
-                type: picture-glance
-            type: horizontal-stack
-          - cards:
-              - camera_image: camera.xiaovv_q8
-                entities:
-                  - sensor.cameretta_temperature
-                title: Cameretta
-                type: picture-glance
-              - camera_image: camera.m5cam
-                entities:
-                  - sensor.soggiorno_temperature
-                  - sensor.soggiorno_humidity
-                title: Soggiorno
-                type: picture-glance
-            type: horizontal-stack
-        type: vertical-stack
       - entities:
           - entity: sensor.uptime
           - entity: sensor.glances_cpu_used
@@ -193,6 +156,10 @@ views:
           - entity: sensor.rpi_power_status
         title: Sistema
         type: glance
+      - entity: media_player.skyq_soggiorno
+        hide:
+          volume: true
+        type: 'custom:mini-media-player'
       - card:
           title: Luci accese
           type: entities
@@ -201,7 +168,7 @@ views:
             - domain: light
               state: 'on'
         show_empty: false
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - card:
           card:
             title: Persone in casa
@@ -230,7 +197,7 @@ views:
         filter:
           include:
             - entity_id: person.*
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - entities:
           - entity: group.people
           - entity: group.alex
@@ -259,12 +226,14 @@ views:
           include:
             - entity_id: switch.*motion*
             - entity_id: input_boolean.*motion*
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - entities:
           - entity: binary_sensor.m5cam_pir
             secondary_info: last-changed
           - entity: binary_sensor.m5stickc_pir_hat_pir
             secondary_info: last-changed
+        show_header_toggle: false
+        title: Sensori di movimento
         type: entities
     icon: 'mdi:account-multiple'
     path: people
@@ -273,14 +242,8 @@ views:
     cards:
       - entity: media_player.lg_webos_smart_tv
         type: media-control
-      - card:
-          show_header_toggle: false
-          title: Sky
-          type: glance
-        filter:
-          include:
-            - entity_id: '*sky*'
-        type: 'custom:monster-card'
+      - entity: media_player.skyq_soggiorno
+        type: media-control
       - card:
           show_header_toggle: true
           title: Luci
@@ -288,7 +251,7 @@ views:
         filter:
           include:
             - entity_id: light.*
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - card:
           show_header_toggle: true
           title: Interruttori
@@ -300,7 +263,7 @@ views:
             - entity_id: '*motion_detection'
           include:
             - domain: switch
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
     path: main
     title: Casa
   - badges: []
@@ -310,41 +273,21 @@ views:
           title: Home Cinema
           type: entities
         filter:
+          exclude:
+            - entity_id: '*tvcc*'
           include:
             - entity_id: '*media_player*'
             - entity_id: '*sky*'
             - entity_id: '*tv*'
-            - entity_id: '*sky*'
             - entity_id: '*la7*'
             - entity_id: '*rai*'
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
     icon: 'mdi:television'
     panel: false
     path: tv
     title: TV
   - badges: []
     cards:
-      - cards:
-          - cards:
-              - entities:
-                  - sensor.met_temperature
-                hour24: true
-                show:
-                  fill: false
-                  icon: true
-                  labels: true
-                  name: false
-                  state: true
-                type: 'custom:mini-graph-card'
-              - cards:
-                  - template: termometro
-                    type: 'custom:decluttering-card'
-                    variables:
-                      - entity: sensor.met_temperature
-                type: horizontal-stack
-            type: horizontal-stack
-        title: ⛅ Outdoor
-        type: 'custom:vertical-stack-in-card'
       - cards:
           - cards:
               - template: termometro
@@ -410,6 +353,27 @@ views:
         title: "\U0001F3E0 Indoor"
         type: 'custom:vertical-stack-in-card'
       - cards:
+          - cards:
+              - entities:
+                  - sensor.met_temperature
+                hour24: true
+                show:
+                  fill: false
+                  icon: true
+                  labels: true
+                  name: false
+                  state: true
+                type: 'custom:mini-graph-card'
+              - cards:
+                  - template: termometro
+                    type: 'custom:decluttering-card'
+                    variables:
+                      - entity: sensor.met_temperature
+                type: horizontal-stack
+            type: horizontal-stack
+        title: ⛅ Outdoor
+        type: 'custom:vertical-stack-in-card'
+      - cards:
           - card:
               show_header_toggle: false
               title: Riscaldamento
@@ -417,7 +381,7 @@ views:
             filter:
               include:
                 - domain: climate
-            type: 'custom:monster-card'
+            type: 'custom:auto-entities'
           - card:
               show_header_toggle: false
               title: Temperature
@@ -425,7 +389,7 @@ views:
             filter:
               include:
                 - entity_id: sensor.*temperature
-            type: 'custom:monster-card'
+            type: 'custom:auto-entities'
         type: vertical-stack
     path: climate
     title: Climatizzazione
@@ -437,14 +401,14 @@ views:
         filter:
           include:
             - domain: automation
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - card:
           title: Script
           type: entities
         filter:
           include:
             - domain: script
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
     path: automation
     title: Automazioni
   - badges: []
@@ -463,7 +427,7 @@ views:
           include:
             - entity_id: switch.*motion*
             - entity_id: input_boolean.*motion*
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - camera_image: camera.m5cam
         camera_view: live
         entities:
@@ -471,14 +435,6 @@ views:
           - sensor.soggiorno_humidity
         title: Soggiorno
         type: picture-glance
-      - card:
-          show_header_toggle: false
-          title: LG TV
-          type: entities
-        filter:
-          include:
-            - entity_id: '*lg*'
-        type: 'custom:monster-card'
       - camera_image: camera.m5cameraf
         camera_view: live
         entities:
@@ -504,7 +460,7 @@ views:
         filter:
           include:
             - entity_id: '*m5cameraf*'
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - card:
           show_header_toggle: false
           title: M5Cam
@@ -513,7 +469,7 @@ views:
           include:
             - entity_id: '*m5cam'
             - entity_id: '*m5cam_*'
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
       - card:
           show_header_toggle: false
           title: M5StickC PIR Hat
@@ -521,7 +477,7 @@ views:
         filter:
           include:
             - entity_id: '*m5stickc_pir*'
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
     icon: 'mdi:wrench'
     title: Lab
   - badges: []
@@ -555,6 +511,6 @@ views:
         filter:
           include:
             - entity_id: '*zigbee*'
-        type: 'custom:monster-card'
+        type: 'custom:auto-entities'
     icon: 'mdi:zigbee'
     title: Zigbee
