@@ -59,19 +59,12 @@ shelly:
       light_switch: true
       name: Soggiorno Shelly
 
+glances:
+  port: 61209
+
 sensor:
   - platform: fritzbox_netmonitor
     host: 192.168.1.254
-  - platform: glances
-    host: 127.0.0.1
-    port: 61209
-    version: 3
-    resources:
-      - 'disk_use_percent'
-      - 'cpu_temp'
-      - 'disk_free'
-      - 'cpu_use_percent'
-      - 'memory_free'
   - platform: uptime
     unit_of_measurement: hours
   - platform: template
