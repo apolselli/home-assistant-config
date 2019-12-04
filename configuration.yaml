@@ -43,6 +43,9 @@ hacs:
 
 api:
 
+# mobile_app includes the default notifier: notify.notify
+mobile_app:
+
 alexa:
   smart_home:
     filter:
@@ -164,16 +167,6 @@ recorder:
       - sensor.m5stickc_env_hat_dht12_humidity
       - sensor.m5stickc_env_hat_bmp280_temperature
       - sensor.m5stickc_env_hat_bmp280_pressure
-
-telegram_bot:
-  - platform: polling
-    api_key: !secret telegram_api_key
-    allowed_chat_ids:
-      - !secret telegram_chat_id_alex
-
-notify:
-  - platform: telegram
-    chat_id: !secret telegram_chat_id_alex
 
 group: !include groups.yaml
 automation: !include automations.yaml
