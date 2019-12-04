@@ -1,0 +1,174 @@
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api_key
+    allowed_chat_ids:
+      - !secret telegram_chat_id_alex
+
+notify:
+  - name: telegram
+    platform: telegram
+    chat_id: !secret telegram_chat_id_alex
+
+script:
+    notify_camera_n:
+      alias: Notifica Camera n
+      sequence:
+      - service: script.notify_camera
+        data_template:
+          entity_id: >
+            {% if   camera_number | int == 1 %} camera.m5cameraf
+            {% elif camera_number | int == 2 %} camera.hikam_s5
+            {% elif camera_number | int == 3 %} camera.xiaovv_q8
+            {% elif camera_number | int == 4 %} camera.m5cam
+            {% endif %}
+    notify_camera:
+      alias: Notifica Camera per entity_id
+      sequence:
+      - service: camera.snapshot
+        data_template:
+          entity_id: "{{ entity_id }}"
+          filename: "/dev/snapshot_{{ entity_id }}.jpg"
+      - delay: "00:00:02"
+      - service: notify.telegram
+        data_template:
+          message: ""
+          data:
+            photo:
+            - file: "/dev/snapshot_{{ entity_id }}.jpg"
+              caption: "{{ state_attr(entity_id,'friendly_name') }}"
+              inline_keyboard: 'Toggle motion detection:/toggle_{{ entity_id }}_motion_detection'
+
+automation:
+    - id: '9000'
+      alias: 'Telegram start'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/start'
+      action:
+      - service: notify.telegram
+        data:
+          message: 'commands'
+          data:
+            keyboard:
+              - '/cam 1, /cam 2, /cam 3, /cam 4'
+              - '/lights_off, /lights_on'
+              - '/restart'
+              
+    - id: '10000'
+      alias: 'Telegram camera'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/cam'
+      action:
+      - service: script.notify_camera_n
+        data_template:
+          camera_number: "{{ trigger.event.data.args[0] }}"
+    
+    - id: '10100'
+      alias: 'Telegram lights OFF'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/lights_off'
+      action:
+      - service: light.turn_off
+        entity_id: group.all_lights
+        
+    - id: '10110'
+      alias: 'Telegram lights ON'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/lights_on'
+      action:
+      - service: light.turn_on
+        entity_id: group.all_lights
+        
+    - id: '11030'
+      alias: 'Toggle m5cam motion detection'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: '/toggle_camera.m5cam_motion_detection'
+      action:
+      - service: input_boolean.toggle
+        entity_id: input_boolean.m5cam_motion_detection
+      - service: notify.telegram
+        data_template:
+          message: '{{ states.input_boolean.m5cam_motion_detection.state }}'
+    
+    - id: '11040'
+      alias: 'Toggle HiKam S5 (Soggiorno) motion detection'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: '/toggle_camera.hikam_s5_motion_detection'
+      action:
+      - service: input_boolean.toggle
+        entity_id: input_boolean.soggiorno_motion_detection
+      - service: notify.telegram
+        data_template:
+          message: '{{ states.input_boolean.soggiorno_motion_detection.state }}'
+    
+    - id: '7020'
+      alias: Notifica rilevazione movimento m5cam
+      initial_state: 'on'
+      trigger:
+      - platform: state
+        entity_id: binary_sensor.m5cam_pir
+        to: 'on'
+      condition:
+      - condition: state
+        entity_id: input_boolean.m5cam_motion_detection
+        state: 'on'
+      action:
+      - service: notify.telegram
+        data:
+          message: Motion detection (m5cam)
+      - service: script.notify_camera
+        data:
+          entity_id: camera.m5cam
+        
+    - id: '7030'
+      alias: Notifica rilevazione movimento soggiorno
+      initial_state: 'on'
+      trigger:
+      - platform: state
+        entity_id: binary_sensor.m5stickc_pir_hat_pir
+        to: 'on'
+      condition:
+      - condition: state
+        entity_id: input_boolean.soggiorno_motion_detection
+        state: 'on'
+      action:
+      - service: notify.telegram
+        data:
+          message: Motion detection (soggiorno)
+      - service: script.notify_camera
+        data:
+          entity_id: camera.hikam_s5
+        
+    - id: '12000'
+      alias: 'Telegram restart home assistant'
+      initial_state: 'on'
+      trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart'
+      action:
+      - service: homeassistant.restart
