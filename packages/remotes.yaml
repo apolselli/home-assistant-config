@@ -14,6 +14,16 @@ remote:
 
 input_boolean:
   stereo_state:
+
+webostv:
+  host: 192.168.1.207
+  turn_on_action:
+    - service: remote.send_command
+      data:
+        entity_id: remote.soggiorno
+        command:
+          - PowerOn
+        device: LG TV
   
 media_player:
 
@@ -31,16 +41,6 @@ media_player:
       Rai2: '5,5,0,2'
       Rai3: '5,5,0,3'
       La7: '5,5,0,7'
-
-  - platform: webostv
-    host: 192.168.1.207
-    turn_on_action:
-      - service: remote.send_command
-        data:
-          entity_id: remote.soggiorno
-          command:
-            - PowerOn
-          device: LG TV
 
   - platform: universal
     name: TV
@@ -181,6 +181,12 @@ script:
           entity_id: remote.soggiorno
           command:
             - PowerOn
+          device: Pioneer Ricevitore AV
+      - service: remote.send_command
+        data:
+          entity_id: remote.soggiorno
+          command:
+            - InputCd
           device: Pioneer Ricevitore AV
 
   turn_off_stereo:
