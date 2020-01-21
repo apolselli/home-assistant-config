@@ -80,7 +80,7 @@ automation:
           command: '/lights_off'
       action:
       - service: light.turn_off
-        entity_id: group.all_lights
+        entity_id: all
         
     - id: '10110'
       alias: 'Telegram lights ON'
@@ -92,7 +92,7 @@ automation:
           command: '/lights_on'
       action:
       - service: light.turn_on
-        entity_id: group.all_lights
+        entity_id: all
         
     - id: '11030'
       alias: 'Toggle m5cam motion detection'
