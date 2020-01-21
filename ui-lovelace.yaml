@@ -183,9 +183,6 @@ views:
           - entity: group.people
             state: home
         type: conditional
-      - entities:
-          - entity: group.all_lights
-        type: entities
     path: default_view
     title: Home
   - badges: []
@@ -202,7 +199,6 @@ views:
           - entity: group.people
           - entity: group.alex
           - entity: group.mari
-          - entity: group.all_devices
         show_header_toggle: false
         theme: default
         title: Presenza
@@ -276,9 +272,9 @@ views:
           exclude:
             - entity_id: '*tvcc*'
           include:
+            - entity_id: switch.*sky*
             - entity_id: '*media_player*'
-            - entity_id: '*sky*'
-            - entity_id: '*tv*'
+            - entity_id: '*arte*'
             - entity_id: '*la7*'
             - entity_id: '*rai*'
         type: 'custom:auto-entities'
@@ -500,13 +496,14 @@ views:
           - entity: sensor.home_assistant_v2_db
         title: Storage
         type: glance
-      - type: 'custom:auto-entities'
-        card:
-          type: entities
+      - card:
+          show_header_toggle: false
           title: Glances
+          type: entities
         filter:
           include:
             - entity_id: '*glances*'
+        type: 'custom:auto-entities'
     icon: 'mdi:server-network'
     title: System
   - badges: []
