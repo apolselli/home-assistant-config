@@ -4,6 +4,17 @@ people:
     - group.alex
     - group.mari
 
+all_lights:
+  name: Luci
+  entities:
+    - light.lampadario_soggiorno
+    - light.0x0017880102c5e8d1_light
+    - light.0x00158d00018571c3_light
+    - light.0x00158d000073663c_light
+    - light.0x0017880102cff004_light
+    - light.0x7cb03eaa0a05b438_light
+    - light.0x7cb03eaa0a05aba9_light
+
 alex:
   name: Alessandro
   icon: mdi:human-male
