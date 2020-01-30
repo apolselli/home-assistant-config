@@ -1,0 +1,71 @@
+substitutions:
+  devicename: m5atom
+  upper_devicename: M5Atom
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: pico32
+  platformio_options:
+    upload_speed: 115200
+
+wifi:
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+
+  ap:
+    ssid: ${upper_devicename} Fallback Hotspot
+    password: !secret wifi_password
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    name: ${upper_devicename} Button
+    on_press:
+      then:
+        - switch.toggle: relay1
+        - light.toggle: led1
+
+sensor:
+  - platform: wifi_signal
+    name: ${upper_devicename} WiFi Signal
+  - platform: uptime
+    name: ${upper_devicename} Uptime
+
+switch:
+  - platform: restart
+    name: ${upper_devicename} Restart
+  - platform: gpio
+    pin:
+      number: GPIO26
+    name: ${upper_devicename} Relay
+    id: relay1
+
+light:
+  - platform: neopixelbus
+    type: GRB
+    pin: GPIO27
+    num_leds: 25
+    name: ${upper_devicename} Led
+    id: led1
+    effects:
+      - addressable_rainbow:
+      - random:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_twinkle:
+      - addressable_random_twinkle:
+      - addressable_fireworks:
+      - addressable_flicker:
+      
