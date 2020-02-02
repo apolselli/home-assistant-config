@@ -26,6 +26,8 @@ api:
 
 ota:
 
+#web_server:
+
 binary_sensor:
   - platform: gpio
     pin:
@@ -57,7 +59,7 @@ light:
     type: GRB
     pin: GPIO27
     num_leds: 25
-    name: ${upper_devicename} Led
+    name: ${upper_devicename} Led Matrix
     id: led1
     effects:
       - addressable_rainbow:
