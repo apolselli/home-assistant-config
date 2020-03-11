@@ -1,18 +1,31 @@
 substitutions:
   devicename: m5atom_env
   upper_devicename: M5Atom ENV
-  mqtt_broker: 192.168.1.200
 
 esphome:
   name: $devicename
   platform: ESP32
   board: pico32
+  includes:
+    - my_matrixled_display.h
   platformio_options:
     upload_speed: 115200
+  on_boot:
+    then:
+    - light.turn_on:
+        id: led1
+        brightness: 80%
+        red: 0
+        green: 1
+        blue: 0
 
 wifi:
   networks:
   - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+
+  ap:
+    ssid: ${upper_devicename} Fallback Hotspot
     password: !secret wifi_password
 
 logger:
@@ -23,9 +36,12 @@ ota:
 
 web_server:
 
-#mqtt:
-#  broker: ${mqtt_broker}
-
+font:
+  - id: tinyfont
+    file: "DejaVuSans.ttf"
+    size: 7
+    glyphs: '!"%()+,-_.:*=°?~#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'
+    
 i2c:
   - id: grove_bus
     sda: GPIO26
@@ -56,20 +72,17 @@ sensor:
       on_value:
         - light.turn_on:
             id: led1
-            red: !lambda "return x - 21.0;"
-            green: !lambda "return 0.5;"
-            blue: !lambda "return 20.0 - x;"
+            effect: "Scrolling Info"
     pressure:
       name: ${upper_devicename} BMP280 Pressure
     address: 0x76
-    update_interval: 5s
   - platform: dht12
     i2c_id: grove_bus
     temperature:
       name: ${upper_devicename} DHT12 Temperature
-      id: temp2
     humidity:
       name: ${upper_devicename} DHT12 Humidity
+      id: hum1
 
 switch:
   - platform: restart
@@ -82,12 +95,49 @@ light:
     num_leds: 25
     name: ${upper_devicename} Led Matrix
     id: led1
+    color_correct: [50%, 50%, 50%]
     effects:
       - addressable_rainbow:
-      - random:
       - addressable_color_wipe:
       - addressable_scan:
       - addressable_twinkle:
       - addressable_random_twinkle:
       - addressable_fireworks:
-      - addressable_flicker:
+      - addressable_lambda:
+          name: "Scrolling Info"
+          update_interval: 150ms
+          lambda: |-
+            static char text[16] = "";
+            static uint16_t run = 0;
+            static int width;
+            static int fullwidth = 32;
+            static int x_offset;
+            static int baseline;
+            static int height;
+            static auto matrixled = new MatrixLedDisplay();
+            matrixled->set_addr_light((light::AddressableLight *) &it);
+            matrixled->set_width(5);
+            matrixled->set_height(5);
+
+            matrixled->set_rotation(display::DISPLAY_ROTATION_270_DEGREES); 
+
+            matrixled->set_fg_color(current_color);
+
+            matrixled->clear();
+            
+            if ((run % fullwidth) == 0){
+                if(id(temp1).has_state()) {
+                  //sprintf(text, "%.1f°C %.0f%%", id(temp1).state, id(hum1).state);
+                  sprintf(text, "%.1f°C", id(temp1).state);
+                  //run = 0;
+                }
+                
+                id(tinyfont)->measure(text, &width, &x_offset, &baseline, &height);
+                fullwidth = width + 5;
+                
+                ESP_LOGD("main", "Displaying \"%s\"", text);
+            };
+            matrixled->printf(5 + width/2 - run % fullwidth, matrixled->get_height()/2, id(tinyfont), COLOR_ON, TextAlign::CENTER, text);
+            run++;
+
+display:
