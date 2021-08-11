@@ -1,35 +1,35 @@
 - id: '1010'
   alias: Notifica avvio di Hassio
-  initial_state: 'on'
   trigger:
   - platform: homeassistant
     event: start
   action:
   - service: notify.notify
     data:
-      message: Hassio avviato con ip esterno {{ state_attr('sensor.fritz_netmonitor', 'external_ip') }}
-      
+      message: Hassio avviato con ip esterno {{ states.sensor.fritz_box_7530_external_ip.state
+        }}
+  initial_state: 'on'
+  mode: single
 - id: '3000'
   alias: Accendi TVCC e attiva motion detection quando non rimane nessuno
   initial_state: 'on'
   trigger:
   - platform: state
     entity_id: group.people
-    from: 'home'
-    to: 'not_home'
+    from: home
+    to: not_home
   action:
   - service: notify.notify
     data_template:
-      message: 'Attivo motion detection'
+      message: Attivo motion detection
   - service: input_boolean.turn_on
     entity_id: input_boolean.m5cam_motion_detection
   - service: input_boolean.turn_on
     entity_id: input_boolean.soggiorno_motion_detection
   - service: switch.turn_on
     entity_id: switch.smart_usb_relay_2
-
 - id: '3500'
-  alias: 'Notifica quando vengono accese luci con nessuno in casa'
+  alias: Notifica quando vengono accese luci con nessuno in casa
   initial_state: 'on'
   trigger:
   - platform: state
@@ -38,20 +38,19 @@
   condition:
   - condition: state
     entity_id: group.people
-    state: 'not_home'
+    state: not_home
   action:
   - service: notify.notify
     data_template:
-      message: 'Lights ON with everyone outside!'
-      
+      message: Lights ON with everyone outside!
 - id: '3510'
-  alias: 'Notifica luci accese quando non rimane nessuno'
+  alias: Notifica luci accese quando non rimane nessuno
   initial_state: 'on'
   trigger:
   - platform: state
     entity_id: group.people
-    from: 'home'
-    to: 'not_home'
+    from: home
+    to: not_home
   condition:
   - condition: state
     entity_id: group.all_lights
@@ -59,55 +58,22 @@
   action:
   - service: notify.notify
     data_template:
-      message: 'You left with lights ON!'
-      
+      message: You left with lights ON!
 - id: '4000'
   alias: Spegni TVCC e motion detection quando rientra qualcuno
   initial_state: 'on'
   trigger:
   - platform: state
     entity_id: group.people
-    from: 'not_home'
-    to: 'home'
+    from: not_home
+    to: home
   action:
   - service: notify.notify
     data_template:
-      message: 'Disattivo motion detection'
+      message: Disattivo motion detection
   - service: input_boolean.turn_off
     entity_id: input_boolean.m5cam_motion_detection
   - service: input_boolean.turn_off
     entity_id: input_boolean.soggiorno_motion_detection
   - service: switch.turn_off
     entity_id: switch.smart_usb_relay_2
-
-- id: '30000'
-  alias: "M5StickC spegne lampada e lampadario"
-  hide_entity: true
-  initial_state: 'on'
-  trigger:
-    platform: state
-    entity_id: binary_sensor.m5stickc_pir_hat_button_a
-    to: 'on'
-  condition:
-    condition: state
-    entity_id: light.lampadario_soggiorno
-    state: 'on'
-  action:
-    - service: light.turn_off
-      entity_id: all
-      
-- id: '30010'
-  alias: "M5StickC accende lampada e lampadario"
-  hide_entity: true
-  initial_state: 'on'
-  trigger:
-    platform: state
-    entity_id: binary_sensor.m5stickc_pir_hat_button_a
-    to: 'on'
-  condition:
-    condition: state
-    entity_id: light.lampadario_soggiorno
-    state: 'off'
-  action:
-    - service: light.turn_on
-      entity_id: all
