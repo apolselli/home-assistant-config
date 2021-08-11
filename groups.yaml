@@ -7,27 +7,24 @@ people:
 all_lights:
   name: Luci
   entities:
-    - light.lampadario_soggiorno
     - light.0x0017880102c5e8d1_light
     - light.0x00158d00018571c3_light
     - light.0x00158d000073663c_light
     - light.0x0017880102cff004_light
     - light.0x7cb03eaa0a05b438_light
     - light.0x7cb03eaa0a05aba9_light
+    - light.shellyswitch25_10cd60_channel_1
+    - light.shellyswitch25_10cd60_channel_2
+    - light.shelly1_c4f57f
 
 alex:
   name: Alessandro
-  icon: mdi:human-male
   entities:
-#    - device_tracker.iphone
-#    - device_tracker.iphonealelan
     - device_tracker.iphone_di_alessandro
-#    - device_tracker.iphone_di_alessandro_2
+    - device_tracker.iphone_di_alessandro_2
 
 mari:
   name: Mariangela
-  icon: mdi:human-female
   entities:
-#    - device_tracker.iphonemarilan
     - device_tracker.iphone_di_mariangela
 #    - device_tracker.iphone_di_mariangela_2
