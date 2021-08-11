@@ -6,10 +6,10 @@ decluttering_templates:
         borders: false
         height: '[[size]]'
         highlights:
-          - color: 'rgba(255, 255, 100, .50)'
+          - color: rgba(255, 255, 100, .50)
             from: 1020
             to: 1040
-          - color: 'rgba(100, 100, 255, .50)'
+          - color: rgba(100, 100, 255, .50)
             from: 980
             to: 1000
         majorTicks:
@@ -31,7 +31,7 @@ decluttering_templates:
         valueBox: true
         valueDec: 0
         width: '[[size]]'
-      type: 'custom:canvas-gauge-card'
+      type: custom:canvas-gauge-card
     default:
       - size: 180
       - name: Barometro
@@ -42,7 +42,7 @@ decluttering_templates:
         borders: false
         height: '[[size]]'
         highlights:
-          - color: 'rgba(50, 200, 50, .30)'
+          - color: rgba(50, 200, 50, .30)
             from: 35
             to: 60
         majorTicks:
@@ -66,7 +66,7 @@ decluttering_templates:
         valueDec: 0
         valueInt: 2
         width: '[[size]]'
-      type: 'custom:canvas-gauge-card'
+      type: custom:canvas-gauge-card
     default:
       - size: 180
       - name: Igrometro
@@ -77,10 +77,10 @@ decluttering_templates:
         borders: false
         height: '[[height]]'
         highlights:
-          - color: 'rgba(200, 50, 50, .15)'
+          - color: rgba(200, 50, 50, .15)
             from: 25
             to: 35
-          - color: 'rgba(50, 50, 200, .15)'
+          - color: rgba(50, 50, 200, .15)
             from: 10
             to: 17
         majorTicks:
@@ -97,43 +97,28 @@ decluttering_templates:
         type: linear-gauge
         valueBox: false
         width: '[[size]]'
-      type: 'custom:canvas-gauge-card'
+      type: custom:canvas-gauge-card
     default:
       - size: 100
       - height: 300
       - name: Termometro
-resources:
-  - type: module
-    url: /community_plugin/lovelace-auto-entities/auto-entities.js
-  - type: module
-    url: /community_plugin/canvas-gauge-card/canvas-gauge-card.js
-  - type: module
-    url: /community_plugin/decluttering-card/decluttering-card.js
-  - type: module
-    url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
-  - type: module
-    url: /community_plugin/mini-graph-card/mini-graph-card-bundle.js
-  - type: module
-    url: /community_plugin/simple-weather-card/simple-weather-card-bundle.js
-  - type: module
-    url: /community_plugin/mini-media-player/mini-media-player-bundle.js
-  - type: module
-    url: /community_plugin/search-card/search-card.js
-  - type: module
-    url: /community_plugin/card-tools/card-tools.js
 title: Home Assistant
 views:
   - badges: []
     cards:
       - max_results: 10
-        type: 'custom:search-card'
+        type: custom:search-card
       - entity: media_player.lg_webos_smart_tv
-        type: 'custom:mini-media-player'
+        type: custom:mini-media-player
+      - type: custom:mini-media-player
+        entity: media_player.tv
       - entity: media_player.echo_dot_di_alessandro
-        type: 'custom:mini-media-player'
+        type: custom:mini-media-player
+      - entity: media_player.sky
+        type: custom:mini-media-player
       - entity: weather.casa
         name: ' '
-        type: 'custom:simple-weather-card'
+        type: custom:simple-weather-card
       - entities:
           - sensor.soggiorno_temperature
           - sensor.cucina_temperature
@@ -147,19 +132,18 @@ views:
           icon: true
           labels: true
           name: true
-        type: 'custom:mini-graph-card'
+        type: custom:mini-graph-card
       - entities:
           - entity: sensor.uptime
           - entity: sensor.glances_cpu_used
-          - entity: sensor.glances_cpu_temp
-          - entity: sensor.home_assistant_v2_db
-          - entity: sensor.rpi_power_status
+          - entity: sensor.glances_cpu_thermal_1_temperature
+          - entity: binary_sensor.rpi_power_status
         title: Sistema
         type: glance
       - entity: media_player.skyq_soggiorno
         hide:
           volume: true
-        type: 'custom:mini-media-player'
+        type: custom:mini-media-player
       - card:
           title: Luci accese
           type: entities
@@ -168,7 +152,7 @@ views:
             - domain: light
               state: 'on'
         show_empty: false
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - card:
           card:
             title: Persone in casa
@@ -194,7 +178,7 @@ views:
         filter:
           include:
             - entity_id: person.*
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - entities:
           - entity: group.people
           - entity: group.alex
@@ -222,7 +206,7 @@ views:
           include:
             - entity_id: switch.*motion*
             - entity_id: input_boolean.*motion*
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - entities:
           - entity: binary_sensor.m5cam_pir
             secondary_info: last-changed
@@ -231,14 +215,12 @@ views:
         show_header_toggle: false
         title: Sensori di movimento
         type: entities
-    icon: 'mdi:account-multiple'
+    icon: mdi:account-multiple
     path: people
     title: Persone
   - badges: []
     cards:
-      - entity: media_player.lg_webos_smart_tv
-        type: media-control
-      - entity: media_player.skyq_soggiorno
+      - entity: media_player.tv
         type: media-control
       - card:
           show_header_toggle: true
@@ -247,7 +229,7 @@ views:
         filter:
           include:
             - entity_id: light.*
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - card:
           show_header_toggle: true
           title: Interruttori
@@ -259,7 +241,7 @@ views:
             - entity_id: '*motion_detection'
           include:
             - domain: switch
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
     path: main
     title: Casa
   - badges: []
@@ -272,13 +254,9 @@ views:
           exclude:
             - entity_id: '*tvcc*'
           include:
-            - entity_id: switch.*sky*
             - entity_id: '*media_player*'
-            - entity_id: '*arte*'
-            - entity_id: '*la7*'
-            - entity_id: '*rai*'
-        type: 'custom:auto-entities'
-    icon: 'mdi:television'
+        type: custom:auto-entities
+    icon: mdi:television
     panel: false
     path: tv
     title: TV
@@ -287,47 +265,47 @@ views:
       - cards:
           - cards:
               - template: termometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.cucina_temperature
                   - name: Cucina
               - template: termometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.soggiorno_temperature
                   - name: Soggiorno
               - template: termometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.cameretta_temperature
                   - name: Cameretta
               - template: termometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.camera_da_letto_temperature
                   - name: Camera da letto
             type: horizontal-stack
           - cards:
               - template: igrometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.cucina_humidity
                   - name: Cucina
                   - size: 100
               - template: igrometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.soggiorno_humidity
                   - name: Soggiorno
                   - size: 100
               - template: igrometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.cameretta_humidity
                   - name: Cameretta
                   - size: 100
               - template: igrometro
-                type: 'custom:decluttering-card'
+                type: custom:decluttering-card
                 variables:
                   - entity: sensor.camera_da_letto_humidity
                   - name: Camera da letto
@@ -345,9 +323,9 @@ views:
               labels: true
               name: true
               state: true
-            type: 'custom:mini-graph-card'
-        title: "\U0001F3E0 Indoor"
-        type: 'custom:vertical-stack-in-card'
+            type: custom:mini-graph-card
+        title: 🏠 Indoor
+        type: custom:vertical-stack-in-card
       - cards:
           - cards:
               - entities:
@@ -359,16 +337,16 @@ views:
                   labels: true
                   name: false
                   state: true
-                type: 'custom:mini-graph-card'
+                type: custom:mini-graph-card
               - cards:
                   - template: termometro
-                    type: 'custom:decluttering-card'
+                    type: custom:decluttering-card
                     variables:
                       - entity: sensor.met_temperature
                 type: horizontal-stack
             type: horizontal-stack
         title: ⛅ Outdoor
-        type: 'custom:vertical-stack-in-card'
+        type: custom:vertical-stack-in-card
       - cards:
           - card:
               show_header_toggle: false
@@ -377,7 +355,7 @@ views:
             filter:
               include:
                 - domain: climate
-            type: 'custom:auto-entities'
+            type: custom:auto-entities
           - card:
               show_header_toggle: false
               title: Temperature
@@ -385,8 +363,16 @@ views:
             filter:
               include:
                 - entity_id: sensor.*temperature
-            type: 'custom:auto-entities'
+            type: custom:auto-entities
         type: vertical-stack
+      - card:
+          show_header_toggle: false
+          title: M5Stack Air Quality
+          type: entities
+        filter:
+          include:
+            - entity_id: '*m5stack_air*'
+        type: custom:auto-entities
     path: climate
     title: Climatizzazione
   - badges: []
@@ -397,14 +383,14 @@ views:
         filter:
           include:
             - domain: automation
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - card:
           title: Script
           type: entities
         filter:
           include:
             - domain: script
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
     path: automation
     title: Automazioni
   - badges: []
@@ -423,7 +409,7 @@ views:
           include:
             - entity_id: switch.*motion*
             - entity_id: input_boolean.*motion*
-        type: 'custom:auto-entities'
+        type: custom:auto-entities
       - camera_image: camera.m5cam
         camera_view: live
         entities:
@@ -438,13 +424,16 @@ views:
           - sensor.soggiorno_humidity
         title: M5CameraF
         type: picture-glance
-      - camera_image: camera.xiaovv_q8
+      - aspect_ratio: 0%
+        camera_image: camera.xiaovv_q8_onvif_stream0_1
         camera_view: live
         entities:
           - sensor.cameretta_temperature
         title: Cameretta
         type: picture-glance
-    icon: 'mdi:cctv'
+      - entity: camera.xiaovv_q8_onvif_stream0_0
+        type: picture-entity
+    icon: mdi:cctv
     theme: default
     title: Videosorveglianza
   - badges: []
@@ -456,25 +445,8 @@ views:
         filter:
           include:
             - entity_id: '*m5cameraf*'
-        type: 'custom:auto-entities'
-      - card:
-          show_header_toggle: false
-          title: M5Cam
-          type: entities
-        filter:
-          include:
-            - entity_id: '*m5cam'
-            - entity_id: '*m5cam_*'
-        type: 'custom:auto-entities'
-      - card:
-          show_header_toggle: false
-          title: M5StickC PIR Hat
-          type: entities
-        filter:
-          include:
-            - entity_id: '*m5stickc_pir*'
-        type: 'custom:auto-entities'
-    icon: 'mdi:wrench'
+        type: custom:auto-entities
+    icon: mdi:wrench
     title: Lab
   - badges: []
     cards:
@@ -482,8 +454,8 @@ views:
           - entity: sensor.uptime
           - entity: sensor.glances_ram_free
           - entity: sensor.glances_cpu_used
-          - entity: sensor.glances_cpu_temp
-          - entity: sensor.rpi_power_status
+          - entity: sensor.glances_cpu_thermal_1_temperature
+          - entity: binary_sensor.rpi_power_status
         title: System
         type: glance
       - entities:
@@ -491,9 +463,8 @@ views:
         title: Network
         type: glance
       - entities:
-          - entity: sensor.glances_disk_free
-          - entity: sensor.glances_disk_used_percent
-          - entity: sensor.home_assistant_v2_db
+          - entity: sensor.glances_config_free
+          - entity: sensor.glances_config_used_percent
         title: Storage
         type: glance
       - card:
@@ -503,18 +474,21 @@ views:
         filter:
           include:
             - entity_id: '*glances*'
-        type: 'custom:auto-entities'
-    icon: 'mdi:server-network'
+        type: custom:auto-entities
+    icon: mdi:server-network
     title: System
   - badges: []
     cards:
+      - entity: climate.matrix_shelly_thermostat
+        type: thermostat
       - card:
           show_header_toggle: false
-          title: Zigbee2mqtt
+          title: Matrix Shelly Thermostat
           type: entities
         filter:
           include:
-            - entity_id: '*zigbee*'
-        type: 'custom:auto-entities'
-    icon: 'mdi:zigbee'
-    title: Zigbee
+            - entity_id: '*matrix_shelly*'
+        type: custom:auto-entities
+    icon: mdi:thermostat
+    path: termostato
+    title: Termostato
