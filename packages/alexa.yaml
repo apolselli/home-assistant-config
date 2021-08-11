@@ -1,0 +1,17 @@
+alexa:
+  smart_home:
+    filter:
+      include_entities:
+        - light.shellyswitch25_10cd60_channel_1
+        - light.shellyswitch25_10cd60_channel_2
+        - light.shellyvintage_66c8ba
+        - light.0x0017880102c5e8d1
+        - light.0x00158d00018571c3
+        - light.0x00158d000073663c
+        - light.0x0017880102cff004
+        - light.0x7cb03eaa0a05b438
+        #- light.0x7cb03eaa0a05aba9
+        - light.ingresso
+      include_domains:
+        - media_player
+        #- climate
