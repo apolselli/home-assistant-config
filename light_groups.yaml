@@ -1,0 +1,6 @@
+light:
+  - platform: group
+    name: Ingresso
+    entities:
+      - light.0x7cb03eaa0a05aba9
+      - light.shelly1_c4f57f
